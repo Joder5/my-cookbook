@@ -13,6 +13,7 @@ Welcome to my-cookbook's documentation!
    hello
    test
    dcmp
+   ubuntu
 
 
 

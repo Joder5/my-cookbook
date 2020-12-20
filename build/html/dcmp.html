@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DCMP - Airflow集成自动生成DAG插件 &mdash; my-cookbook 0.1 文档</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="论" href="ubuntu.html" />
+    <link rel="prev" title="dnihao" href="test.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> my-cookbook
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hello.html">hello,world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">dnihao</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DCMP - Airflow集成自动生成DAG插件</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dcmp">一、集成 DCMP 插件：</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plugins">1. 创建 plugins 目录</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">2. 添加</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dcmp-plugins">3. 下载 dcmp 插件并移动至 plugins 下</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#airflow-cfg">4. 添加 airflow.cfg 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">5. 更新数据库</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">二、启动服务</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#web-ui">1. web ui</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scheduler">2. scheduler - 调度</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#worker">3. Worker - 消费者</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dcmp-dag">三、DCMP 下创建和管理 dag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pools">1. 创建 Pools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bash-dag">2. 创建 bash dag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-dag">3. 同样的方式，我们可以创建一个 python dag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dag">4. 查看生成的 dag 代码</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dcmp-operator">四、DCMP 加入自定义的 Operator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bashoperator-python">1. 如何通过 BashOperator 执行 python 命令</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">2. dcmp 加入自定的 operator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ubuntu.html">论</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">my-cookbook</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>DCMP - Airflow集成自动生成DAG插件</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dcmp.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dcmp-airflowdag">
+<h1>DCMP - Airflow集成自动生成DAG插件<a class="headerlink" href="#dcmp-airflowdag" title="永久链接至标题">¶</a></h1>
+<p>Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法通过UI界面来编辑 DAG 文件，这里介绍一个插件，通过该插件可在 UI 界面上通过拖放的方式设计工作流，最后自动生成 DAG 定义文件。</p>
+<p><a class="reference external" href="https://github.com/lattebank/airflow-dag-creation-manager-plugin">Airflow DAG Creation Manager Plugin</a></p>
+<div class="section" id="dcmp">
+<h2>一、集成 DCMP 插件：<a class="headerlink" href="#dcmp" title="永久链接至标题">¶</a></h2>
+<div class="section" id="plugins">
+<h3>1. 创建 plugins 目录<a class="headerlink" href="#plugins" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir  <span class="nv">$AIRFLOW_HOME</span>/plugins
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>2. 添加<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h3>
+<p>$AIRFLOW_HOME/plugins/_<em>init</em>_.py</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+import os
+import sys
+
+from airflow import settings
+
+<span class="nv">PROJECT_BASE_PATH</span> <span class="o">=</span> os.path.abspath<span class="o">(</span>os.path.dirname<span class="o">(</span>settings.AIRFLOW_HOME<span class="o">))</span>  <span class="c1"># 项目根目录</span>
+<span class="nv">AIRFLOW_PATH</span> <span class="o">=</span> os.path.abspath<span class="o">(</span>settings.AIRFLOW_HOME<span class="o">)</span>  <span class="c1"># Airflow根目录</span>
+<span class="nv">PLUGIN_PATH</span> <span class="o">=</span> os.path.join<span class="o">(</span>AIRFLOW_PATH, <span class="s2">&quot;plugins&quot;</span><span class="o">)</span>  <span class="c1"># Plugin根目录</span>
+sys.path.extend<span class="o">([</span>PROJECT_BASE_PATH, PLUGIN_PATH, AIRFLOW_PATH<span class="o">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dcmp-plugins">
+<h3>3. 下载 dcmp 插件并移动至 plugins 下<a class="headerlink" href="#dcmp-plugins" title="永久链接至标题">¶</a></h3>
+<p>下载地址：https://github.com/lattebank/airflow-dag-creation-manager-plugin/archive/master.zip</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 解压</span>
+unzip airflow-dag-creation-manager-plugin-master.zip
+
+<span class="c1"># 移动到 airflow 目录下的 plugins 下</span>
+cp -r airflow-dag-creation-manager-plugin-master <span class="nv">$AIRFLOW_HOME</span>/plugins
+</pre></div>
+</div>
+</div>
+<div class="section" id="airflow-cfg">
+<h3>4. 添加 airflow.cfg 配置<a class="headerlink" href="#airflow-cfg" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>webserver<span class="o">]</span> 
+
+<span class="nv">authenticate</span> <span class="o">=</span> False
+<span class="nv">auth_backend</span> <span class="o">=</span> dcmp.auth.backends.password_auth
+
+<span class="o">[</span>dag_creation_manager<span class="o">]</span>
+
+<span class="c1"># see https://github.com/d3/d3-3.x-api-reference/blob/master/SVG-Shapes.md#line_interpolate</span>
+<span class="c1"># DEFAULT: basis</span>
+<span class="nv">dag_creation_manager_line_interpolate</span> <span class="o">=</span> basis
+
+<span class="c1"># Choices for queue and pool</span>
+<span class="c1"># 指定 QUEUE 和 POOL</span>
+<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> default_queue_pool:default<span class="p">|</span>default_pool
+
+<span class="c1"># MR queue for queue pool</span>
+<span class="nv">dag_creation_manager_queue_pool_mr_queue</span> <span class="o">=</span> default_queue_pool:default_mr_queue
+
+<span class="c1"># Category for display</span>
+<span class="nv">dag_creation_manager_category</span> <span class="o">=</span> custom
+
+<span class="c1"># Task category for display</span>
+<span class="nv">dag_creation_manager_task_category</span> <span class="o">=</span> custom_task:#ffba40
+
+<span class="c1"># Your email address to receive email</span>
+<span class="c1"># DEFAULT:</span>
+<span class="nv">dag_creation_manager_default_email</span> <span class="o">=</span> your_email_address
+
+<span class="nv">dag_creation_manager_need_approver</span> <span class="o">=</span> False
+
+<span class="nv">dag_creation_manager_can_approve_self</span> <span class="o">=</span> True
+
+<span class="nv">dag_creation_manager_dag_templates_dir</span> <span class="o">=</span> <span class="nv">$AIRFLOW_HOME</span>/plugins/dcmp/dag_templates
+</pre></div>
+</div>
+<p>关于 <code class="docutils literal notranslate"><span class="pre">dag_creation_manager_queue_pool</span></code> 的用法，可以查看源码</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># scheduler/plugins/dcmp/settings.py:25</span>
+
+<span class="n">DAG_CREATION_MANAGER_QUEUE_POOL</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">queue_pool_str</span> <span class="ow">in</span> <span class="n">DAG_CREATION_MANAGER_QUEUE_POOL_STR</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">queue_pool</span> <span class="o">=</span> <span class="n">queue_pool_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="n">queue</span><span class="p">,</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">queue_pool</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
+    <span class="n">DAG_CREATION_MANAGER_QUEUE_POOL</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">pool</span><span class="p">)))</span>
+
+<span class="n">DAG_CREATION_MANAGER_QUEUE_POOL_DICT</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">DAG_CREATION_MANAGER_QUEUE_POOL</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如果 airflow.cfg 配置为：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Choices for queue and pool</span>
+<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> master_queue_pool:master_queue<span class="p">|</span>master_pool
+
+<span class="c1"># MR queue for queue pool</span>
+<span class="nv">dag_creation_manager_queue_pool_mr_queue</span> <span class="o">=</span> master_queue_pool:master_mr_queue
+</pre></div>
+</div>
+<p>那么消费者指定队列为</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>airflow worker -q master_queue
+</pre></div>
+</div>
+<p>在 web ui 创建的 pool为 <code class="docutils literal notranslate"><span class="pre">master_pool</span></code></p>
+</div>
+<div class="section" id="id2">
+<h3>5. 更新数据库<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python <span class="nv">$AIRFLOW_HOME</span>/plugins/dcmp/tools/upgradedb.py
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>二、启动服务<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<div class="section" id="web-ui">
+<h3>1. web ui<a class="headerlink" href="#web-ui" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>airflow webserver -p <span class="m">8086</span>  
+</pre></div>
+</div>
+</div>
+<div class="section" id="scheduler">
+<h3>2. scheduler - 调度<a class="headerlink" href="#scheduler" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>airflow scheduler
+</pre></div>
+</div>
+</div>
+<div class="section" id="worker">
+<h3>3. Worker - 消费者<a class="headerlink" href="#worker" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 在这里需要制定队列，跟上面 airflow.cfg 指定的队列一致</span>
+airflow worker -q mydefault
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dcmp-dag">
+<h2>三、DCMP 下创建和管理 dag<a class="headerlink" href="#dcmp-dag" title="永久链接至标题">¶</a></h2>
+<p>访问：localhost:8086</p>
+<p>如果 Admin 下出现 <code class="docutils literal notranslate"><span class="pre">DAG</span> <span class="pre">Creation</span> <span class="pre">Manager</span></code> ，就证明已经把 DCMP 集成进来了。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dcmp-manager.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dcmp-manager.png" /></p>
+<div class="section" id="pools">
+<h3>1. 创建 Pools<a class="headerlink" href="#pools" title="永久链接至标题">¶</a></h3>
+<p>Amdin - Pool</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" />
+<img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" /></p>
+</div>
+<div class="section" id="bash-dag">
+<h3>2. 创建 bash dag<a class="headerlink" href="#bash-dag" title="永久链接至标题">¶</a></h3>
+<p>Admin - DAG Creation Manager - Tasks</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/bash_dag.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/bash_dag.png" /></p>
+<p>保存后，我们回到 DAGs 列表查看。该DAG不会马上被识别出来，默认情况下Airflow是5分钟扫描一次dag目录，该配置可在airflow.cfg中修改。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">scheduler</span><span class="p">]</span>
+<span class="c1"># dag 扫描间隔时间</span>
+<span class="n">dag_dir_list_interval</span> <span class="o">=</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>过一会就看到刚刚创建的 <code class="docutils literal notranslate"><span class="pre">bash_dag_example</span></code> 了。我们可以手动触发 dag，方法是点击 <code class="docutils literal notranslate"><span class="pre">Links</span></code> 下的第一个类似暂停按钮的键即可</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_list.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_list.png" /></p>
+<p>查看输出</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ tail -f /tmp/date.txt
+Tue Dec  <span class="m">8</span> <span class="m">16</span>:59:46 CST <span class="m">2020</span>
+Tue Dec  <span class="m">8</span> <span class="m">17</span>:00:06 CST <span class="m">2020</span>
+Tue Dec  <span class="m">8</span> <span class="m">17</span>:02:06 CST <span class="m">2020</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-dag">
+<h3>3. 同样的方式，我们可以创建一个 python dag<a class="headerlink" href="#python-dag" title="永久链接至标题">¶</a></h3>
+<p>类似 bash dag的创建方式，只是在 <code class="docutils literal notranslate"><span class="pre">Task</span></code> 栏勾选 <code class="docutils literal notranslate"><span class="pre">python</span></code></p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/python_dag.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/python_dag.png" /></p>
+</div>
+<div class="section" id="dag">
+<h3>4. 查看生成的 dag 代码<a class="headerlink" href="#dag" title="永久链接至标题">¶</a></h3>
+<p>选择某个 dag 并进入</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/in_python_dag.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/in_python_dag.png" /></p>
+<p>查看 code 代码</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_code.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_code.png" /></p>
+</div>
+</div>
+<div class="section" id="dcmp-operator">
+<h2>四、DCMP 加入自定义的 Operator<a class="headerlink" href="#dcmp-operator" title="永久链接至标题">¶</a></h2>
+<div class="section" id="bashoperator-python">
+<h3>1. 如何通过 BashOperator 执行 python 命令<a class="headerlink" href="#bashoperator-python" title="永久链接至标题">¶</a></h3>
+<p>dag 执行的路径，不是在 dag 这个项目下，而是类似 <code class="docutils literal notranslate"><span class="pre">/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo</span></code>。但由于我们一般都是进入某个特定项目执行，所以如果用默认的 BashOperator，我们需要先进入某个路径</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">dag</span> <span class="o">=</span> DAG<span class="o">(</span>
+    <span class="s2">&quot;bash_dag_demo&quot;</span>,
+    <span class="nv">default_args</span><span class="o">=</span>default_args,
+    <span class="nv">description</span><span class="o">=</span><span class="s2">&quot;File Caller DAG&quot;</span>,
+    <span class="nv">schedule_interval</span><span class="o">=</span><span class="s2">&quot;0 */10 * * *&quot;</span>,
+<span class="o">)</span>
+
+BashOperator<span class="o">(</span>
+    <span class="nv">task_id</span><span class="o">=</span><span class="s2">&quot;bash_task_demo&quot;</span>,
+    <span class="nv">bash_command</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;cd /app/my-project &amp;&amp; python -m tasks.task_file run --send2spider=kuaishou_user_video_list --kwargs=&quot;{&#39;</span>data<span class="s1">&#39;:{&#39;</span>ttl<span class="s1">&#39;: 40, &#39;</span>priority<span class="s1">&#39;: 3, &#39;</span>initiator<span class="s1">&#39;: &#39;</span>checker.baton<span class="s1">&#39;}, &#39;</span>media<span class="s1">&#39;:&#39;</span>kuaishou<span class="s1">&#39;,&#39;</span>caller_type<span class="s1">&#39;: &#39;</span>user_info<span class="s1">&#39;, &#39;</span>arg_list<span class="s1">&#39;:[&#39;</span>uid<span class="s1">&#39;], &#39;</span>value<span class="s1">&#39;:&#39;</span>/Users/wu/Work/youmi/projects/ym-crawler-ccs/tasks/ks_uid_test.txt<span class="s1">&#39;}&quot;&#39;&#39;&#39;</span>,
+    <span class="nv">dag</span><span class="o">=</span>dag,
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>其实对于同一个项目来说，这一步 <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">xxx</span></code> 是重复的，因此我们可以自定义的 BashOperator。只需继承默认的 BashOperator，稍作改动</p>
+<p>scheduler/plugins/my_bash_operator</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># @Time   : 2020/12/9 上午11:31</span>
+<span class="c1"># @Author : wu</span>
+import os
+
+from airflow import settings
+from airflow.operators.bash_operator import BashOperator
+from airflow.utils.decorators import apply_defaults
+
+<span class="nv">PROJECT_BASE_PATH</span> <span class="o">=</span> os.path.abspath<span class="o">(</span>os.path.dirname<span class="o">(</span>settings.AIRFLOW_HOME<span class="o">))</span>  <span class="c1"># 项目根目录</span>
+
+
+class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>:
+    @apply_defaults
+    def __init__<span class="o">(</span>self, bash_command, <span class="nv">xcom_push</span><span class="o">=</span>False, <span class="nv">env</span><span class="o">=</span>None, <span class="nv">output_encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>, *args, **kwargs<span class="o">)</span>:
+        super<span class="o">(</span>BashOperator, self<span class="o">)</span>.__init__<span class="o">(</span>*args, **kwargs<span class="o">)</span>
+        <span class="c1"># bash operator 执行的路径不是当前根目录，因此当需要在通过 bash operator 执行时，还需要 cd 到项目的根目录</span>
+        <span class="c1"># 为了减少这步操作，自定义了一个 bash_operator</span>
+        <span class="c1"># 默认执行的路径类似：/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo</span>
+        self.bash_command <span class="o">=</span> f<span class="s2">&quot;cd {PROJECT_BASE_PATH} &amp;&amp; &quot;</span> + bash_command
+        self.env <span class="o">=</span> env
+        self.xcom_push_flag <span class="o">=</span> xcom_push
+        self.output_encoding <span class="o">=</span> output_encoding
+        self.sub_process <span class="o">=</span> None
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>2. dcmp 加入自定的 operator<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<p>dcmp 是开源的，因此我们只需要找到相应的地方，改动下源码即可</p>
+<p>a. scheduler/plugins/dcmp/dag_templates/dag_code.template</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入自定义的 Operator</span>
+<span class="kn">from</span> <span class="nn">scheduler.plugins.my_bash_operator</span> <span class="kn">import</span> <span class="n">MyBashOperator</span>
+</pre></div>
+</div>
+<p>b. scheduler/plugins/dcmp/settings.py</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 找到这句，改为如下</span>
+<span class="n">TASK_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;my_bash&quot;</span><span class="p">,</span> <span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;hql&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;short_circuit&quot;</span><span class="p">,</span> <span class="s2">&quot;partition_sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;time_sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;timedelta_sensor&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>c. scheduler/plugins/dcmp/dag_creation_manager_plugin.py</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">command_render</span><span class="p">(</span><span class="n">task_type</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+    <span class="n">attr_renderer</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;my_bash&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">BashLexer</span><span class="p">),</span>
+        <span class="s2">&quot;bash&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">BashLexer</span><span class="p">),</span>
+        <span class="s2">&quot;hql&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">SqlLexer</span><span class="p">),</span>
+        <span class="s2">&quot;sql&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">SqlLexer</span><span class="p">),</span>
+        <span class="s2">&quot;python&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="p">),</span>
+        <span class="s2">&quot;short_circuit&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="p">),</span>
+        <span class="s2">&quot;partition_sensor&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="p">),</span>
+        <span class="s2">&quot;time_sensor&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="p">),</span>
+        <span class="s2">&quot;timedelta_sensor&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>d.scheduler/plugins/dcmp/dag_converter.py</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DAGConverter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">My_BASH_TASK_CODE_TEMPLATE</span> <span class="o">=</span> <span class="n">BASE_TASK_CODE_TEMPLATE</span> <span class="o">%</span> <span class="p">{</span>
+        <span class="s2">&quot;before_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_name&quot;</span><span class="p">:</span> <span class="s2">&quot;MyBashOperator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_code&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        bash_command=r&#39;&#39;&#39;</span><span class="si">%(processed_command)s</span><span class="s2"> &#39;&#39;&#39;,</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+     <span class="n">TASK_TYPE_TO_TEMPLATE</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;my_bash&quot;</span><span class="p">:</span> <span class="n">My_BASH_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;bash&quot;</span><span class="p">:</span> <span class="n">BASH_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;dummy&quot;</span><span class="p">:</span> <span class="n">DUMMY_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;hql&quot;</span><span class="p">:</span> <span class="n">HQL_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;python&quot;</span><span class="p">:</span> <span class="n">PYTHON_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;short_circuit&quot;</span><span class="p">:</span> <span class="n">SHORT_CIRCUIT_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;partition_sensor&quot;</span><span class="p">:</span> <span class="n">HIVE_PARTITION_SENSOR_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;time_sensor&quot;</span><span class="p">:</span> <span class="n">TIME_SENSOR_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+        <span class="s2">&quot;timedelta_sensor&quot;</span><span class="p">:</span> <span class="n">TIMEDELTA_SENSOR_TASK_CODE_TEMPLATE</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>e.  scheduler/plugins/dcmp/static/dcmp/js/edit.js</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nb">window</span><span class="p">.</span><span class="nx">default_task</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nx">task_name</span><span class="o">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="c1">// 把自定义的改为默认</span>
+        <span class="nx">task_type</span><span class="o">:</span> <span class="s2">&quot;my_bash&quot;</span><span class="p">,</span>
+        <span class="nx">command</span><span class="o">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="nx">priority_weight</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nx">upstreams</span><span class="o">:</span> <span class="p">[]</span>
+
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="s2">&quot;bash&quot;</span><span class="p">){</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;&lt;textarea &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">readonly</span><span class="o">?</span> <span class="s1">&#39; readonly=&quot;readonly&quot; &#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; id=&quot;ace_&#39;</span> <span class="o">+</span> <span class="nx">task_id</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nx">task_type</span> <span class="o">+</span> <span class="s1">&#39;&quot; class=&quot;form-control&quot; rows=&quot;1&quot; name=&quot;command&quot;&gt;&#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="nx">task</span><span class="p">[</span><span class="nx">field_name</span><span class="p">]</span><span class="o">?</span> <span class="nx">task</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/textarea&gt;&#39;</span><span class="p">);</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">render_help</span><span class="p">);</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">get_ace_script</span><span class="p">(</span><span class="nx">task_type</span><span class="p">,</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+                <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="s2">&quot;my_bash&quot;</span><span class="p">){</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;&lt;textarea &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">readonly</span><span class="o">?</span> <span class="s1">&#39; readonly=&quot;readonly&quot; &#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; id=&quot;ace_&#39;</span> <span class="o">+</span> <span class="nx">task_id</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nx">task_type</span> <span class="o">+</span> <span class="s1">&#39;&quot; class=&quot;form-control&quot; rows=&quot;1&quot; name=&quot;command&quot;&gt;&#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="nx">task</span><span class="p">[</span><span class="nx">field_name</span><span class="p">]</span><span class="o">?</span> <span class="nx">task</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/textarea&gt;&#39;</span><span class="p">);</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">render_help</span><span class="p">);</span>
+                    <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">get_ace_script</span><span class="p">(</span><span class="nx">task_type</span><span class="p">,</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+                <span class="p">}</span>
+</pre></div>
+</div>
+<p>到此，就在 dcmp 里集成了自定义的 operator 了。</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ubuntu.html" class="btn btn-neutral float-right" title="论" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="test.html" class="btn btn-neutral float-left" title="dnihao" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 版权所有 2020, wu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
