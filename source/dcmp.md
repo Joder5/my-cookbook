@@ -1,0 +1,345 @@
+
+
+# DCMP - Airflow集成自动生成DAG插件
+
+Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法通过UI界面来编辑 DAG 文件，这里介绍一个插件，通过该插件可在 UI 界面上通过拖放的方式设计工作流，最后自动生成 DAG 定义文件。
+
+[Airflow DAG Creation Manager Plugin](https://github.com/lattebank/airflow-dag-creation-manager-plugin)
+
+
+
+### 一、集成 DCMP 插件：
+
+#### 1. 创建 plugins 目录
+
+```bash
+mkdir  $AIRFLOW_HOME/plugins
+```
+
+#### 2. 添加
+
+$AIRFLOW_HOME/plugins/\__init__.py
+
+```bash
+# -*- coding: utf-8 -*-
+import os
+import sys
+
+from airflow import settings
+
+PROJECT_BASE_PATH = os.path.abspath(os.path.dirname(settings.AIRFLOW_HOME))  # 项目根目录
+AIRFLOW_PATH = os.path.abspath(settings.AIRFLOW_HOME)  # Airflow根目录
+PLUGIN_PATH = os.path.join(AIRFLOW_PATH, "plugins")  # Plugin根目录
+sys.path.extend([PROJECT_BASE_PATH, PLUGIN_PATH, AIRFLOW_PATH])
+    ```
+
+#### 3. 下载 dcmp 插件并移动至 plugins 下
+
+    下载地址：https://github.com/lattebank/airflow-dag-creation-manager-plugin/archive/master.zip
+
+
+
+    ```bash
+# 解压
+    unzip airflow-dag-creation-manager-plugin-master.zip
+
+# 移动到 airflow 目录下的 plugins 下
+    cp -r airflow-dag-creation-manager-plugin-master $AIRFLOW_HOME/plugins
+    ```
+
+
+#### 4. 添加 airflow.cfg 配置
+
+    ```bash
+    [webserver] 
+
+    authenticate = False
+    auth_backend = dcmp.auth.backends.password_auth
+
+    [dag_creation_manager]
+
+# see https://github.com/d3/d3-3.x-api-reference/blob/master/SVG-Shapes.md#line_interpolate
+# DEFAULT: basis
+    dag_creation_manager_line_interpolate = basis
+
+# Choices for queue and pool
+# 指定 QUEUE 和 POOL
+    dag_creation_manager_queue_pool = default_queue_pool:default|default_pool
+
+# MR queue for queue pool
+    dag_creation_manager_queue_pool_mr_queue = default_queue_pool:default_mr_queue
+
+# Category for display
+    dag_creation_manager_category = custom
+
+# Task category for display
+    dag_creation_manager_task_category = custom_task:#ffba40
+
+# Your email address to receive email
+# DEFAULT:
+    dag_creation_manager_default_email = your_email_address
+
+    dag_creation_manager_need_approver = False
+
+    dag_creation_manager_can_approve_self = True
+
+    dag_creation_manager_dag_templates_dir = $AIRFLOW_HOME/plugins/dcmp/dag_templates
+    ```
+
+    关于 `dag_creation_manager_queue_pool` 的用法，可以查看源码
+
+    ```python
+# scheduler/plugins/dcmp/settings.py:25
+
+    DAG_CREATION_MANAGER_QUEUE_POOL = []
+    for queue_pool_str in DAG_CREATION_MANAGER_QUEUE_POOL_STR.split(","):
+        key, queue_pool = queue_pool_str.split(":")
+            queue, pool = queue_pool.split("|")
+                DAG_CREATION_MANAGER_QUEUE_POOL.append((key, (queue, pool)))
+
+    DAG_CREATION_MANAGER_QUEUE_POOL_DICT = dict(DAG_CREATION_MANAGER_QUEUE_POOL)
+    ```
+
+    如果 airflow.cfg 配置为：
+    ```bash
+# Choices for queue and pool
+    dag_creation_manager_queue_pool = master_queue_pool:master_queue|master_pool
+
+# MR queue for queue pool
+    dag_creation_manager_queue_pool_mr_queue = master_queue_pool:master_mr_queue
+    ```
+    那么消费者指定队列为
+    ```bash
+    airflow worker -q master_queue
+    ```
+    在 web ui 创建的 pool为 `master_pool`
+
+
+#### 5. 更新数据库
+
+    ```bash
+    python $AIRFLOW_HOME/plugins/dcmp/tools/upgradedb.py
+    ```
+
+
+### 二、启动服务
+
+#### 1. web ui 
+
+    ```bash
+    airflow webserver -p 8086  
+    ```
+
+#### 2. scheduler - 调度
+
+    ```bash
+    airflow scheduler
+    ```
+
+#### 3. Worker - 消费者
+
+    ```bash
+# 在这里需要制定队列，跟上面 airflow.cfg 指定的队列一致
+    airflow worker -q mydefault
+    ```
+
+
+### 三、DCMP 下创建和管理 dag
+
+    访问：[localhost:8086](localhost:8086)
+
+    如果 Admin 下出现 `DAG Creation Manager` ，就证明已经把 DCMP 集成进来了。
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dcmp-manager.png)
+
+
+#### 1. 创建 Pools
+
+    Amdin - Pool
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png)
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png)
+
+
+
+#### 2. 创建 bash dag
+
+    Admin - DAG Creation Manager - Tasks
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/bash_dag.png)
+
+
+
+    保存后，我们回到 DAGs 列表查看。该DAG不会马上被识别出来，默认情况下Airflow是5分钟扫描一次dag目录，该配置可在airflow.cfg中修改。
+
+    ```
+    [scheduler]
+# dag 扫描间隔时间
+    dag_dir_list_interval = 10
+    ```
+
+    过一会就看到刚刚创建的 `bash_dag_example` 了。我们可以手动触发 dag，方法是点击 `Links` 下的第一个类似暂停按钮的键即可
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_list.png)
+
+    查看输出
+
+    ```bash
+    $ tail -f /tmp/date.txt
+    Tue Dec  8 16:59:46 CST 2020
+    Tue Dec  8 17:00:06 CST 2020
+    Tue Dec  8 17:02:06 CST 2020
+    ```
+
+#### 3. 同样的方式，我们可以创建一个 python dag
+
+    类似 bash dag的创建方式，只是在 `Task` 栏勾选 `python`
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/python_dag.png)
+
+
+#### 4. 查看生成的 dag 代码
+
+    选择某个 dag 并进入
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/in_python_dag.png)
+
+    查看 code 代码
+
+    ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dag_code.png)
+
+
+### 四、DCMP 加入自定义的 Operator
+
+#### 1. 如何通过 BashOperator 执行 python 命令
+
+    dag 执行的路径，不是在 dag 这个项目下，而是类似 `/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo`。但由于我们一般都是进入某个特定项目执行，所以如果用默认的 BashOperator，我们需要先进入某个路径
+    ```bash
+    dag = DAG(
+                "bash_dag_demo",
+                    default_args=default_args,
+                        description="File Caller DAG",
+                            schedule_interval="0 */10 * * *",
+            )
+
+    BashOperator(
+                task_id="bash_task_demo",
+                    bash_command='''cd /app/my-project && python -m tasks.task_file run --send2spider=kuaishou_user_video_list --kwargs="{'data':{'ttl': 40, 'priority': 3, 'initiator': 'checker.baton'}, 'media':'kuaishou','caller_type': 'user_info', 'arg_list':['uid'], 'value':'/Users/wu/Work/youmi/projects/ym-crawler-ccs/tasks/ks_uid_test.txt'}"''',
+                        dag=dag,
+            )
+    ```
+
+    其实对于同一个项目来说，这一步 `cd xxx` 是重复的，因此我们可以自定义的 BashOperator。只需继承默认的 BashOperator，稍作改动
+
+    scheduler/plugins/my_bash_operator 
+
+    ```bash
+# -*- coding: utf-8 -*-
+# @Time   : 2020/12/9 上午11:31
+# @Author : wu
+    import os
+
+    from airflow import settings
+    from airflow.operators.bash_operator import BashOperator
+    from airflow.utils.decorators import apply_defaults
+
+    PROJECT_BASE_PATH = os.path.abspath(os.path.dirname(settings.AIRFLOW_HOME))  # 项目根目录
+
+
+    class MyBashOperator(BashOperator):
+            @apply_defaults
+                 def __init__(self, bash_command, xcom_push=False, env=None, output_encoding="utf-8", *args, **kwargs):
+                             super(BashOperator, self).__init__(*args, **kwargs)
+                                     # bash operator 执行的路径不是当前根目录，因此当需要在通过 bash operator 执行时，还需要 cd 到项目的根目录
+                                     # 为了减少这步操作，自定义了一个 bash_operator
+                                     # 默认执行的路径类似：/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo
+                                     self.bash_command = f"cd {PROJECT_BASE_PATH} && " + bash_command
+                                             self.env = env
+                                                     self.xcom_push_flag = xcom_push
+                                                             self.output_encoding = output_encoding
+                                                                     self.sub_process = None
+
+                                                                     ```
+
+
+#### 2. dcmp 加入自定的 operator
+
+                                                                     dcmp 是开源的，因此我们只需要找到相应的地方，改动下源码即可
+
+                                                                     a. scheduler/plugins/dcmp/dag_templates/dag_code.template
+
+                                                                     ```python
+# 导入自定义的 Operator
+                                                                     from scheduler.plugins.my_bash_operator import MyBashOperator
+                                                                     ```
+
+                                                                     b. scheduler/plugins/dcmp/settings.py
+
+                                                                     ```python
+# 找到这句，改为如下
+                                                                     TASK_TYPES = ["my_bash", "bash", "hql", "python", "short_circuit", "partition_sensor", "time_sensor", "timedelta_sensor"]
+                                                                     ```
+
+                                                                     c. scheduler/plugins/dcmp/dag_creation_manager_plugin.py
+                                                                     ```python
+                                                                     def command_render(task_type, command):
+                                                                             attr_renderer = {
+                                                                                         "my_bash": lambda x: render(x, lexers.BashLexer),
+                                                                                                 "bash": lambda x: render(x, lexers.BashLexer),
+                                                                                                         "hql": lambda x: render(x, lexers.SqlLexer),
+                                                                                                                 "sql": lambda x: render(x, lexers.SqlLexer),
+                                                                                                                         "python": lambda x: render(x, lexers.PythonLexer),
+                                                                                                                                 "short_circuit": lambda x: render(x, lexers.PythonLexer),
+                                                                                                                                         "partition_sensor": lambda x: render(x, lexers.PythonLexer),
+                                                                                                                                                 "time_sensor": lambda x: render(x, lexers.PythonLexer),
+                                                                                                                                                         "timedelta_sensor": lambda x: render(x, lexers.PythonLexer),
+                                                                                                                                                             }
+```
+
+d.scheduler/plugins/dcmp/dag_converter.py
+```python
+class DAGConverter(object):
+        My_BASH_TASK_CODE_TEMPLATE = BASE_TASK_CODE_TEMPLATE % {
+                    "before_code": "",
+                            "operator_name": "MyBashOperator",
+                                    "operator_code": r"""
+                                                bash_command=r'''%(processed_command)s ''',
+                                        """,
+                                            }
+     TASK_TYPE_TO_TEMPLATE = {
+                 "my_bash": My_BASH_TASK_CODE_TEMPLATE,
+                         "bash": BASH_TASK_CODE_TEMPLATE,
+                                 "dummy": DUMMY_TASK_CODE_TEMPLATE,
+                                         "hql": HQL_TASK_CODE_TEMPLATE,
+                                                 "python": PYTHON_TASK_CODE_TEMPLATE,
+                                                         "short_circuit": SHORT_CIRCUIT_TASK_CODE_TEMPLATE,
+                                                                 "partition_sensor": HIVE_PARTITION_SENSOR_TASK_CODE_TEMPLATE,
+                                                                         "time_sensor": TIME_SENSOR_TASK_CODE_TEMPLATE,
+                                                                                 "timedelta_sensor": TIMEDELTA_SENSOR_TASK_CODE_TEMPLATE,
+                                                                                     }
+
+```
+
+e.  scheduler/plugins/dcmp/static/dcmp/js/edit.js
+
+```js
+window.default_task = {
+            task_name: "",
+                               // 把自定义的改为默认
+                               task_type: "my_bash",
+                                       command: "",
+                                               priority_weight: 0,
+                                                       upstreams: []
+
+                                                           else if(task_type == "bash"){
+                                                                                   field_html.push('<textarea ' + (readonly? ' readonly="readonly" ': '') + ' id="ace_' + task_id + '_' + task_type + '" class="form-control" rows="1" name="command">' + (task_type == task[field_name]? task["command"]: '') + '</textarea>');
+                                                                                                       field_html.push(render_help);
+                                                                                                                           field_html.push(get_ace_script(task_type, "sh", 1));
+                                                                                                                                           }else if(task_type == "my_bash"){
+                                                                                                                                                                   field_html.push('<textarea ' + (readonly? ' readonly="readonly" ': '') + ' id="ace_' + task_id + '_' + task_type + '" class="form-control" rows="1" name="command">' + (task_type == task[field_name]? task["command"]: '') + '</textarea>');
+                                                                                                                                                                                       field_html.push(render_help);
+                                                                                                                                                                                                           field_html.push(get_ace_script(task_type, "sh", 1));
+                                                                                                                                                                                                                           }
+                                                           ```
+
+                                                               到此，就在 dcmp 里集成了自定义的 operator 了。
