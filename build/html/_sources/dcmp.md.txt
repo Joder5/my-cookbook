@@ -5,6 +5,7 @@ Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法�
 Github 地址: [Airflow DAG Creation Manager Plugin](https://github.com/lattebank/airflow-dag-creation-manager-plugin)
 
 
+
 ### 一、集成 DCMP 插件：
 
 dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 `dcmp/dag_templates/dag_code.template` 生成一段代码，然后写到本地上文件，这样就等同于我们手写的 dag 了。
@@ -354,13 +355,72 @@ else if(task_type == "my_bash"){
 
 到此，就在 dcmp 里集成了自定义的 operator 了。
 
-### 五、DCMP 跳过非最新 dag
+### 五、常用配置
 
-#### 如何跳过非最新 dag？
+#### 1. 如何跳过非最新 dag？
 
-假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。
+假如有一个每小时调度的 DAG 出错了，我们把它的调度暂停，之后花了3个小时修复了它，修复完成后重新启动这个作业的调度。于是 Airflow 一下子创建了 3 个 DAG Run 并同时执行，这显然不是我们希望的，我们希望它只执行最新的 DAG Run。
 
-如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 `EXpand All /Collapse All` ，然后勾选 `Skip DAG Not Latest`（跳过非最新的 dag）  和 `Skip DAGS On Prew Running`
+如果是手写 dag 的话，需要创建一个 Short Circuit Operator，并且让 DAG 中所有没有依赖的作业都依赖这个作业，然后在这个作业中进行判断，检测当前 DAG Run 是否为最新，不是最新的直接跳过整个 DAG。
+
+```python
+def skip_dag_not_latest_worker(ds, **context):
+    if context['dag_run'] and context['dag_run'].external_trigger:
+        logging.info('Externally triggered DAG_Run: allowing execution to proceed.')
+        return True
+
+    skip = False
+    now = datetime.now()
+    left_window = context['dag'].following_schedule(context['execution_date'])
+    right_window = context['dag'].following_schedule(left_window)
+    logging.info('Checking latest only with left_window: %s right_window: %s now: %s', left_window, right_window, now)
+
+    if not left_window < now <= right_window:
+        skip = True
+    return not skip
+
+ShortCircuitOperator(
+    task_id='skip_dag_not_latest',
+    provide_context=True,
+    python_callable=skip_dag_not_latest_worker,
+    dag=dag
+)
+```
+
+#### 2. 当存在正在执行的 DAG Run 时跳过当前 DAG Run
+
+依旧是之前提到的每小时调度的 DAG，假设它这次没有出错而是由于资源、网络或者其他问题导致执行时间变长，当下一个调度时间开始时 Airflow 依旧会启动一次新的 DAG Run，这样就会同时出现 2 个 DAG Run。如果我们想要避免这种情况，一个简单的方法是直接将 DAG 的 max_active_runs 设置为 1。但这样会导致 DAG Run 堆积的问题，如果你配置的调度是早上 9 点至晚上 9 点，直至晚上 9 点之后 Airflow 可能依旧在处理堆积的 DAG Run。这样就可能影响到我们原本安排在晚上 9 点之后的任务。
+
+我们可以创建一个 Short Circuit Operator，并且让 DAG 中所有没有依赖的作业都依赖这个作业，然后在这个作业中进行判断，检测当前是否存在正在执行的 DAG Run，存在时则直接跳过整个 DAG。
+
+```python
+def skip_dag_when_previous_running_worker(ds, **context):
+    if context['dag_run'] and context['dag_run'].external_trigger:
+        logging.info('Externally triggered DAG_Run: allowing execution to proceed.')
+        return True
+
+    skip = False
+    session = settings.Session()
+    count = session.query(DagRun).filter(
+        DagRun.dag_id == context['dag'].dag_id,
+        DagRun.state.in_(['running']),
+    ).count()
+    session.close()
+    logging.info('Checking running DAG count: %s' % count)
+    skip = count > 1
+    return not skip
+
+ShortCircuitOperator(
+    task_id='skip_dag_when_previous_running',
+    provide_context=True,
+    python_callable=skip_dag_when_previous_running_worker,
+    dag=dag
+)
+```
+
+#### 3. Dcmp 跳过非最新 DAG Run 或正在执行的 DAG Run
+
+而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 `EXpand All /Collapse All` ，然后勾选 `Skip DAG Not Latest`（跳过非最新的 dag）  和 `Skip DAGS On Prew Running`
 
 - **Skip DAG Not Latest**：跳过非最新的 dag。如我们停一段时间后再启动，之前的任务不会执行，只会执行最新的。
 - **Skip DAGS On Prew Running**：同一个 dag 的上次任务还在执行未结束，则跳过此次执行。这种适用于任务的执行的时间可能会超过任务的调度间隔时间，而同一时间我们又不想执行多个任务。
@@ -412,8 +472,6 @@ dag中的每个节点都是一个任务，dag中的边表示的是任务之间�
 | 3    | A.set_downstream(B) | 等同于 A >> B            |
 | 4    | A.set_upstream(B)   | 等同于 B >> A            |
 
-#### 修复源码 bug
-
 从源码看起来这应该是个 bug？因此当我们通过勾选  `Skip DAG Not Latest` 这种方式生成的 task，是没有指定 **Queue Pool**的，因此这里的 queue pool 为 None ，此时 `queue_code`(即 queue) 取 `configuration.get("celery", "default_queue")` 默认值为 `default`，`pool_code = None`
 
 那我们从源码入手，修改源代码: dcmp/dag_converter.py:432
@@ -463,10 +521,52 @@ dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queu
 源码默认`Skip DAG Not Latest`  或 `Skip DAGS On Prew Running` 都为 `False`。
 
 但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py
-在 DEFAULT_CONF 配置下将 `skip_dag_not_latest` 和 `skip_dag_on_prev_running` 设置为 True
+
 ```python
-DEFAULT_CONF = {
+ DEFAULT_CONF = {
+        "retries": 3,
+        "retry_delay_minutes": 5,
+        "start_date": "",
+        "end_date": "",
+        "email_on_failure": True,
+        "email_on_retry": False,
+        "depends_on_past": False,
+        "concurrency": 16,
+        "max_active_runs": 16,
+        "add_start_task": False,
+        "add_end_task": False,
         "skip_dag_not_latest": True,
         "skip_dag_on_prev_running": True,
+        "email_on_skip_dag": False,
+        "emails": "",
+        "tasks": [],
     }
 ```
+
+#### 4. 防止回填 dag 
+
+在上面，我们设置了跳过非最新 dag。在 web ui 界面也可以看到，确实是跳过了，过去的 dag 任务都没有被执行到。
+
+但是有个问题，就是 dag 一直在回填，从过去一直在追赶到当前时间，一般是10来秒回填一次。
+
+如果这中间暂停 dag 的时间比较久，那回填到最新时间，也需要一段时间。而我们的需求可能是，这段时间的 dag 没必要回填。
+
+![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/catchup.png)
+
+那么有什么办法吗？
+
+其实也很简单，`airflow.cfg` 中有个配置选项，我们改为 False 就好了 
+
+```bash
+[scheduler]
+catchup_by_default = False
+```
+
+这样是全局改，如果是针对单个 dag ，还可以改成如下
+
+```bash
+dag = DAG("tutorial", default_args=default_args, schedule_interval=timedelta(1), catchup=False)
+```
+
+如果设置了 `catchup_by_default` 为 False 后，即不回填 dag 了，那此时 `skip_dag_not_latest` 似乎也没用了
+

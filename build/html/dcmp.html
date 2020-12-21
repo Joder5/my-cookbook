@@ -112,9 +112,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">2. dcmp 加入自定的 operator</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 跳过非最新 dag</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">如何跳过非最新 dag？</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bug">修复源码 bug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">五、常用配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">1. 如何跳过非最新 dag？</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dag-run-dag-run">2. 当存在正在执行的 DAG Run 时跳过当前 DAG Run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dcmp-dag-run-dag-run">3. Dcmp 跳过非最新 DAG Run 或正在执行的 DAG Run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">4. 防止回填 dag</a></li>
 </ul>
 </li>
 </ul>
@@ -486,11 +488,67 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
 </div>
 </div>
 <div class="section" id="id5">
-<h2>五、DCMP 跳过非最新 dag<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<h2>五、常用配置<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
 <div class="section" id="id6">
-<h3>如何跳过非最新 dag？<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h3>
-<p>假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。</p>
-<p>如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 <code class="docutils literal notranslate"><span class="pre">EXpand</span> <span class="pre">All</span> <span class="pre">/Collapse</span> <span class="pre">All</span></code> ，然后勾选 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>（跳过非最新的 dag）  和 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code></p>
+<h3>1. 如何跳过非最新 dag？<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h3>
+<p>假如有一个每小时调度的 DAG 出错了，我们把它的调度暂停，之后花了3个小时修复了它，修复完成后重新启动这个作业的调度。于是 Airflow 一下子创建了 3 个 DAG Run 并同时执行，这显然不是我们希望的，我们希望它只执行最新的 DAG Run。</p>
+<p>如果是手写 dag 的话，需要创建一个 Short Circuit Operator，并且让 DAG 中所有没有依赖的作业都依赖这个作业，然后在这个作业中进行判断，检测当前 DAG Run 是否为最新，不是最新的直接跳过整个 DAG。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">skip_dag_not_latest_worker</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag_run&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag_run&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">external_trigger</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Externally triggered DAG_Run: allowing execution to proceed.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">left_window</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">following_schedule</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;execution_date&#39;</span><span class="p">])</span>
+    <span class="n">right_window</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">following_schedule</span><span class="p">(</span><span class="n">left_window</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Checking latest only with left_window: </span><span class="si">%s</span><span class="s1"> right_window: </span><span class="si">%s</span><span class="s1"> now: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">left_window</span><span class="p">,</span> <span class="n">right_window</span><span class="p">,</span> <span class="n">now</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">left_window</span> <span class="o">&lt;</span> <span class="n">now</span> <span class="o">&lt;=</span> <span class="n">right_window</span><span class="p">:</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">skip</span>
+
+<span class="n">ShortCircuitOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;skip_dag_not_latest&#39;</span><span class="p">,</span>
+    <span class="n">provide_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">python_callable</span><span class="o">=</span><span class="n">skip_dag_not_latest_worker</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dag-run-dag-run">
+<h3>2. 当存在正在执行的 DAG Run 时跳过当前 DAG Run<a class="headerlink" href="#dag-run-dag-run" title="永久链接至标题">¶</a></h3>
+<p>依旧是之前提到的每小时调度的 DAG，假设它这次没有出错而是由于资源、网络或者其他问题导致执行时间变长，当下一个调度时间开始时 Airflow 依旧会启动一次新的 DAG Run，这样就会同时出现 2 个 DAG Run。如果我们想要避免这种情况，一个简单的方法是直接将 DAG 的 max_active_runs 设置为 1。但这样会导致 DAG Run 堆积的问题，如果你配置的调度是早上 9 点至晚上 9 点，直至晚上 9 点之后 Airflow 可能依旧在处理堆积的 DAG Run。这样就可能影响到我们原本安排在晚上 9 点之后的任务。</p>
+<p>我们可以创建一个 Short Circuit Operator，并且让 DAG 中所有没有依赖的作业都依赖这个作业，然后在这个作业中进行判断，检测当前是否存在正在执行的 DAG Run，存在时则直接跳过整个 DAG。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">skip_dag_when_previous_running_worker</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag_run&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag_run&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">external_trigger</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Externally triggered DAG_Run: allowing execution to proceed.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">DagRun</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">DagRun</span><span class="o">.</span><span class="n">dag_id</span> <span class="o">==</span> <span class="n">context</span><span class="p">[</span><span class="s1">&#39;dag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dag_id</span><span class="p">,</span>
+        <span class="n">DagRun</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="s1">&#39;running&#39;</span><span class="p">]),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Checking running DAG count: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">count</span><span class="p">)</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">skip</span>
+
+<span class="n">ShortCircuitOperator</span><span class="p">(</span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s1">&#39;skip_dag_when_previous_running&#39;</span><span class="p">,</span>
+    <span class="n">provide_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">python_callable</span><span class="o">=</span><span class="n">skip_dag_when_previous_running_worker</span><span class="p">,</span>
+    <span class="n">dag</span><span class="o">=</span><span class="n">dag</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dcmp-dag-run-dag-run">
+<h3>3. Dcmp 跳过非最新 DAG Run 或正在执行的 DAG Run<a class="headerlink" href="#dcmp-dag-run-dag-run" title="永久链接至标题">¶</a></h3>
+<p>而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 <code class="docutils literal notranslate"><span class="pre">EXpand</span> <span class="pre">All</span> <span class="pre">/Collapse</span> <span class="pre">All</span></code> ，然后勾选 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>（跳过非最新的 dag）  和 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code></p>
 <ul class="simple">
 <li><p><strong>Skip DAG Not Latest</strong>：跳过非最新的 dag。如我们停一段时间后再启动，之前的任务不会执行，只会执行最新的。</p></li>
 <li><p><strong>Skip DAGS On Prew Running</strong>：同一个 dag 的上次任务还在执行未结束，则跳过此次执行。这种适用于任务的执行的时间可能会超过任务的调度间隔时间，而同一时间我们又不想执行多个任务。</p></li>
@@ -530,9 +588,6 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 | 2    | A &lt;&lt; B              | A依赖于B，B先执行A后执行 |
 | 3    | A.set_downstream(B) | 等同于 A &gt;&gt; B            |
 | 4    | A.set_upstream(B)   | 等同于 B &gt;&gt; A            |</p>
-</div>
-<div class="section" id="bug">
-<h3>修复源码 bug<a class="headerlink" href="#bug" title="永久链接至标题">¶</a></h3>
 <p>从源码看起来这应该是个 bug？因此当我们通过勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code> 这种方式生成的 task，是没有指定 <strong>Queue Pool</strong>的，因此这里的 queue pool 为 None ，此时 <code class="docutils literal notranslate"><span class="pre">queue_code</span></code>(即 queue) 取 <code class="docutils literal notranslate"><span class="pre">configuration.get(&quot;celery&quot;,</span> <span class="pre">&quot;default_queue&quot;)</span></code> 默认值为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，<code class="docutils literal notranslate"><span class="pre">pool_code</span> <span class="pre">=</span> <span class="pre">None</span></code></p>
 <p>那我们从源码入手，修改源代码: dcmp/dag_converter.py:432</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
@@ -569,14 +624,45 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 <p>修改完后，再创建的 dag 中，<code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest_or_when_previous_running</span></code> 应该如下。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" /></p>
 <p>源码默认<code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>  或 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code> 都为 <code class="docutils literal notranslate"><span class="pre">False</span></code>。</p>
-<p>但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py
-在 DEFAULT_CONF 配置下将 <code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest</span></code> 和 <code class="docutils literal notranslate"><span class="pre">skip_dag_on_prev_running</span></code> 设置为 True</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DEFAULT_CONF</span> <span class="o">=</span> <span class="p">{</span>
+<p>但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">DEFAULT_CONF</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;retries&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;retry_delay_minutes&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_failure&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_retry&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;depends_on_past&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;max_active_runs&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;add_start_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;add_end_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;skip_dag_not_latest&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_skip_dag&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;emails&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">}</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="id7">
+<h3>4. 防止回填 dag<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h3>
+<p>在上面，我们设置了跳过非最新 dag。在 web ui 界面也可以看到，确实是跳过了，过去的 dag 任务都没有被执行到。</p>
+<p>但是有个问题，就是 dag 一直在回填，从过去一直在追赶到当前时间，一般是10来秒回填一次。</p>
+<p>如果这中间暂停 dag 的时间比较久，那回填到最新时间，也需要一段时间。而我们的需求可能是，这段时间的 dag 没必要回填。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/catchup.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/catchup.png" /></p>
+<p>那么有什么办法吗？</p>
+<p>其实也很简单，<code class="docutils literal notranslate"><span class="pre">airflow.cfg</span></code> 中有个配置选项，我们改为 False 就好了</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>scheduler<span class="o">]</span>
+<span class="nv">catchup_by_default</span> <span class="o">=</span> False
+</pre></div>
+</div>
+<p>这样是全局改，如果是针对单个 dag ，还可以改成如下</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">dag</span> <span class="o">=</span> DAG<span class="o">(</span><span class="s2">&quot;tutorial&quot;</span>, <span class="nv">default_args</span><span class="o">=</span>default_args, <span class="nv">schedule_interval</span><span class="o">=</span>timedelta<span class="o">(</span><span class="m">1</span><span class="o">)</span>, <span class="nv">catchup</span><span class="o">=</span>False<span class="o">)</span>
+</pre></div>
+</div>
+<p>如果设置了 <code class="docutils literal notranslate"><span class="pre">catchup_by_default</span></code> 为 False 后，即不回填 dag 了，那此时 <code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest</span></code> 似乎也没用了</p>
 </div>
 </div>
 </div>
