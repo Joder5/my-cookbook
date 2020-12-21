@@ -8,6 +8,8 @@ Github 地址: [Airflow DAG Creation Manager Plugin](https://github.com/latteban
 
 ### 一、集成 DCMP 插件：
 
+dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 `dcmp/dag_templates/dag_code.template` 生成一段代码，然后写到本地上文件，这样就等同于我们手写的 dag 了。
+
 #### 1. 创建 plugins 目录
 
 ```bash
@@ -148,7 +150,7 @@ airflow worker -q mydefault
 
 ### 三、DCMP 下创建和管理 dag
 
-访问：localhost:8086
+访问：[localhost:8086](localhost:8086)
 
 如果 Admin 下出现 `DAG Creation Manager` ，就证明已经把 DCMP 集成进来了。
 
@@ -353,7 +355,7 @@ else if(task_type == "my_bash"){
 
 到此，就在 dcmp 里集成了自定义的 operator 了。
 
-### 五、DCMP 开启
+### 五、DCMP 跳过非最新 dag
 
 假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。
 
@@ -440,4 +442,3 @@ dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queu
 修改完后，再创建的 dag 中，`skip_dag_not_latest_or_when_previous_running` 应该如下。
 
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png)
-
