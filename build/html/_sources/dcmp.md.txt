@@ -5,7 +5,6 @@ Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法�
 Github 地址: [Airflow DAG Creation Manager Plugin](https://github.com/lattebank/airflow-dag-creation-manager-plugin)
 
 
-
 ### 一、集成 DCMP 插件：
 
 dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 `dcmp/dag_templates/dag_code.template` 生成一段代码，然后写到本地上文件，这样就等同于我们手写的 dag 了。
