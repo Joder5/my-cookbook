@@ -3,6 +3,7 @@
 # 拷贝到 .git/hooks/pre-commit
 
 make html
+git add -A
 
 if [ "$#" != "0" ]; then
     PYFILES="$(find $@ -name '*.py')"
