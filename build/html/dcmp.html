@@ -112,6 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">2. dcmp 加入自定的 operator</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 开启</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
@@ -183,7 +184,7 @@
   <div class="section" id="dcmp-airflowdag">
 <h1>DCMP - Airflow集成自动生成DAG插件<a class="headerlink" href="#dcmp-airflowdag" title="永久链接至标题">¶</a></h1>
 <p>Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法通过UI界面来编辑 DAG 文件，这里介绍一个插件，通过该插件可在 UI 界面上通过拖放的方式设计工作流，最后自动生成 DAG 定义文件。</p>
-<p><a class="reference external" href="https://github.com/lattebank/airflow-dag-creation-manager-plugin">Airflow DAG Creation Manager Plugin</a></p>
+<p>Github 地址: <a class="reference external" href="https://github.com/lattebank/airflow-dag-creation-manager-plugin">Airflow DAG Creation Manager Plugin</a></p>
 <div class="section" id="dcmp">
 <h2>一、集成 DCMP 插件：<a class="headerlink" href="#dcmp" title="永久链接至标题">¶</a></h2>
 <div class="section" id="plugins">
@@ -234,10 +235,10 @@ cp -r airflow-dag-creation-manager-plugin-master <span class="nv">$AIRFLOW_HOME<
 
 <span class="c1"># Choices for queue and pool</span>
 <span class="c1"># 指定 QUEUE 和 POOL</span>
-<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> default_queue_pool:default<span class="p">|</span>default_pool
+<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> default:default<span class="p">|</span>default_pool
 
 <span class="c1"># MR queue for queue pool</span>
-<span class="nv">dag_creation_manager_queue_pool_mr_queue</span> <span class="o">=</span> default_queue_pool:default_mr_queue
+<span class="nv">dag_creation_manager_queue_pool_mr_queue</span> <span class="o">=</span> default_pool:default
 
 <span class="c1"># Category for display</span>
 <span class="nv">dag_creation_manager_category</span> <span class="o">=</span> custom
@@ -270,17 +271,18 @@ cp -r airflow-dag-creation-manager-plugin-master <span class="nv">$AIRFLOW_HOME<
 </div>
 <p>如果 airflow.cfg 配置为：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Choices for queue and pool</span>
-<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> master_queue_pool:master_queue<span class="p">|</span>master_pool
+<span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> default:master_queue<span class="p">|</span>mydefault
 
 <span class="c1"># MR queue for queue pool</span>
 <span class="nv">dag_creation_manager_queue_pool_mr_queue</span> <span class="o">=</span> master_queue_pool:master_mr_queue
 </pre></div>
 </div>
-<p>那么消费者指定队列为</p>
+<p>以上诉为例，则<code class="docutils literal notranslate"><span class="pre">default</span></code> 为 key 的名字，这个 key 会在 dcmp 创建 dag 的 task 时显示出来，需要勾选。 <code class="docutils literal notranslate"><span class="pre">master_queue</span></code> 为 <code class="docutils literal notranslate"><span class="pre">queue</span></code> 的名字，<code class="docutils literal notranslate"><span class="pre">default_pool</span></code>为 pool 的名字。。</p>
+<p><code class="docutils literal notranslate"><span class="pre">airflow</span> <span class="pre">worker</span></code> 启动时，默认消费队列 <code class="docutils literal notranslate"><span class="pre">default</span></code>，如果这里是指定非 <code class="docutils literal notranslate"><span class="pre">default</span></code> 的，那么 worker 在启动时，需要指定对应的队列，如</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>airflow worker -q master_queue
 </pre></div>
 </div>
-<p>在 web ui 创建的 pool为 <code class="docutils literal notranslate"><span class="pre">master_pool</span></code></p>
+<p>airflow 默认的 pool 就是 <code class="docutils literal notranslate"><span class="pre">default_pool</span></code>，因此这里如果指定的 pool 不是 <code class="docutils literal notranslate"><span class="pre">default_pool</span></code>，那么就还需要在 airflow 的 web ui 中进行创建。例如上述配置的话，在 web ui 创建的 pool为 <code class="docutils literal notranslate"><span class="pre">mydefault</span></code></p>
 </div>
 <div class="section" id="id2">
 <h3>5. 更新数据库<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
@@ -313,14 +315,15 @@ airflow worker -q mydefault
 </div>
 <div class="section" id="dcmp-dag">
 <h2>三、DCMP 下创建和管理 dag<a class="headerlink" href="#dcmp-dag" title="永久链接至标题">¶</a></h2>
-<p>访问：localhost:8086</p>
+<p>访问：<a class="reference external" href="localhost:8086">localhost:8086</a></p>
 <p>如果 Admin 下出现 <code class="docutils literal notranslate"><span class="pre">DAG</span> <span class="pre">Creation</span> <span class="pre">Manager</span></code> ，就证明已经把 DCMP 集成进来了。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dcmp-manager.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/dcmp-manager.png" /></p>
 <div class="section" id="pools">
 <h3>1. 创建 Pools<a class="headerlink" href="#pools" title="永久链接至标题">¶</a></h3>
 <p>Amdin - Pool</p>
-<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" />
-<img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" /></p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png" /></p>
+<p>Slots 可以设置个不为0的数即可</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png" /></p>
 </div>
 <div class="section" id="bash-dag">
 <h3>2. 创建 bash dag<a class="headerlink" href="#bash-dag" title="永久链接至标题">¶</a></h3>
@@ -466,7 +469,8 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;&lt;textarea &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">readonly</span><span class="o">?</span> <span class="s1">&#39; readonly=&quot;readonly&quot; &#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; id=&quot;ace_&#39;</span> <span class="o">+</span> <span class="nx">task_id</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nx">task_type</span> <span class="o">+</span> <span class="s1">&#39;&quot; class=&quot;form-control&quot; rows=&quot;1&quot; name=&quot;command&quot;&gt;&#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="nx">task</span><span class="p">[</span><span class="nx">field_name</span><span class="p">]</span><span class="o">?</span> <span class="nx">task</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/textarea&gt;&#39;</span><span class="p">);</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">render_help</span><span class="p">);</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">get_ace_script</span><span class="p">(</span><span class="nx">task_type</span><span class="p">,</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
-                <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="s2">&quot;my_bash&quot;</span><span class="p">){</span>
+                <span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="s2">&quot;my_bash&quot;</span><span class="p">){</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;&lt;textarea &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">readonly</span><span class="o">?</span> <span class="s1">&#39; readonly=&quot;readonly&quot; &#39;</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; id=&quot;ace_&#39;</span> <span class="o">+</span> <span class="nx">task_id</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nx">task_type</span> <span class="o">+</span> <span class="s1">&#39;&quot; class=&quot;form-control&quot; rows=&quot;1&quot; name=&quot;command&quot;&gt;&#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">task_type</span> <span class="o">==</span> <span class="nx">task</span><span class="p">[</span><span class="nx">field_name</span><span class="p">]</span><span class="o">?</span> <span class="nx">task</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/textarea&gt;&#39;</span><span class="p">);</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">render_help</span><span class="p">);</span>
                     <span class="nx">field_html</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">get_ace_script</span><span class="p">(</span><span class="nx">task_type</span><span class="p">,</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
@@ -475,6 +479,74 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
 </div>
 <p>到此，就在 dcmp 里集成了自定义的 operator 了。</p>
 </div>
+</div>
+<div class="section" id="id5">
+<h2>五、DCMP 开启<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<p>假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。</p>
+<p>如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 <code class="docutils literal notranslate"><span class="pre">EXpand</span> <span class="pre">All</span> <span class="pre">/Collapse</span> <span class="pre">All</span></code> ，然后勾选 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>（跳过非最新的 dag）  和 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code></p>
+<ul class="simple">
+<li><p><strong>Skip DAG Not Latest</strong>：跳过非最新的 dag。如我们停一段时间后再启动，之前的任务不会执行，只会执行最新的。</p></li>
+<li><p><strong>Skip DAGS On Prew Running</strong>：同一个 dag 的上次任务还在执行未结束，则跳过此次执行。这种适用于任务的执行的时间可能会超过任务的调度间隔时间，而同一时间我们又不想执行多个任务。</p></li>
+</ul>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/skip_dag_not_latest.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/skip_dag_not_latest.png" /></p>
+<p>但问题来了，勾选创建 dag 之后，我们发现 <code class="docutils literal notranslate"><span class="pre">scheduler</span></code> 抛出异常了</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scheduler    <span class="p">|</span>   File <span class="s2">&quot;/usr/local/lib/python3.7/site-packages/pymysql/connections.py&quot;</span>, line <span class="m">684</span>, in _read_packet
+scheduler    <span class="p">|</span>     packet.check_error<span class="o">()</span>
+scheduler    <span class="p">|</span>   File <span class="s2">&quot;/usr/local/lib/python3.7/site-packages/pymysql/protocol.py&quot;</span>, line <span class="m">220</span>, in check_error
+scheduler    <span class="p">|</span>     err.raise_mysql_exception<span class="o">(</span>self._data<span class="o">)</span>
+scheduler    <span class="p">|</span>   File <span class="s2">&quot;/usr/local/lib/python3.7/site-packages/pymysql/err.py&quot;</span>, line <span class="m">109</span>, in raise_mysql_exception
+scheduler    <span class="p">|</span>     raise errorclass<span class="o">(</span>errno, errval<span class="o">)</span>
+scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o">(</span><span class="m">1048</span>, <span class="s2">&quot;Column &#39;pool&#39; cannot be null&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>说的是 pool 为空值，这时候打开 dag ，查看代码，发现 <code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest_or_when_previous_running</span></code> 这个 task 下 的 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 确实是 None 的。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_none.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_none.png" /></p>
+<p>这里的 task_name 的命名规则可看源码  scheduler/plugins/dcmp/dag_converter.py:331</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;skip_dag_not_latest&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">]:</span>
+    <span class="n">task_name</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;skip_dag_not_latest&quot;</span><span class="p">]:</span>
+        <span class="n">task_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;not_latest&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">]:</span>
+        <span class="n">task_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;when_previous_running&quot;</span><span class="p">)</span>
+    <span class="n">task_name</span> <span class="o">=</span> <span class="s2">&quot;_or_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
+    <span class="n">task_name</span> <span class="o">=</span> <span class="s2">&quot;skip_dag_&quot;</span> <span class="o">+</span> <span class="n">task_name</span>
+    <span class="n">task_name</span> <span class="o">=</span> <span class="n">get_task_name</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">task_name</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>dag中的每个节点都是一个任务，dag中的边表示的是任务之间的依赖（强制为有向无环，因此不会出现循环依赖，从而导致无限执行循环）。</p>
+<p>从上述 dmcp 生成的代码可以看出，当我们勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>  或 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code> 时，其他会生成一个 task，且会与我们原本创建的 task（在上图是 task_test）形成一个依赖关系，A &lt;&lt; B 的意思是 A 依赖于 B，B先执行A后执行。</p>
+<p>| 序号 | 概念                | 解释                     |
+| :— | :—————— | :———————– |
+| 1    | A &gt;&gt; B              | B依赖于A，A先执行B后执行 |
+| 2    | A &lt;&lt; B              | A依赖于B，B先执行A后执行 |
+| 3    | A.set_downstream(B) | 等同于 A &gt;&gt; B            |
+| 4    | A.set_upstream(B)   | 等同于 B &gt;&gt; A            |</p>
+<p>看起来这应该是个 bug？那我们从源码入手，修改源代码: scheduler/plugins/dcmp/dag_converter.py:432</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]:</span>
+        <span class="n">queue_pool</span> <span class="o">=</span> <span class="n">dcmp_settings</span><span class="o">.</span><span class="n">DAG_CREATION_MANAGER_QUEUE_POOL_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_pool&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">queue_pool</span><span class="p">:</span>
+            <span class="c1"># 获取默认的第一个配置</span>
+            <span class="n">queue_pool</span> <span class="o">=</span> <span class="n">dcmp_settings</span><span class="o">.</span><span class="n">DAG_CREATION_MANAGER_QUEUE_POOL</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">queue_pool</span><span class="p">:</span>
+            <span class="n">queue</span><span class="p">,</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">queue_pool</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">queue</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">pool</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;celery&quot;</span><span class="p">,</span> <span class="s2">&quot;default_queue&quot;</span><span class="p">)</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+</pre></div>
+</div>
+<p>这样就是获取了 airflow.cfg 下的第一个配置</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">dag_creation_manager_queue_pool</span> <span class="o">=</span> default:default<span class="p">|</span>default_pool,my_test:test_queue<span class="p">|</span>test_pool
+</pre></div>
+</div>
+<p>如上，如果配置了两个，就是默认获取 <code class="docutils literal notranslate"><span class="pre">default</span></code> 这个，其 queue 为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，pool 为 <code class="docutils literal notranslate"><span class="pre">default_pool</span></code>。</p>
+<p>当然，以上源码的改动是按照我自己的需求来改的，如果有其他需求，就按其他方式改，这里仅提供一个参考。</p>
+<p>修改完后，再创建的 dag 中，<code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest_or_when_previous_running</span></code> 应该如下。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" /></p>
 </div>
 </div>
 

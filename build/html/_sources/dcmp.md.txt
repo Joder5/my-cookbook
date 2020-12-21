@@ -1,8 +1,8 @@
-# DCMP - Airflow集成自动生成DAG插件
+## DCMP - Airflow集成自动生成DAG插件
 
 Airflow 的 DAG 是通过 python 脚本来定义的，原生的 Airflow 无法通过UI界面来编辑 DAG 文件，这里介绍一个插件，通过该插件可在 UI 界面上通过拖放的方式设计工作流，最后自动生成 DAG 定义文件。
 
-[Airflow DAG Creation Manager Plugin](https://github.com/lattebank/airflow-dag-creation-manager-plugin)
+Github 地址: [Airflow DAG Creation Manager Plugin](https://github.com/lattebank/airflow-dag-creation-manager-plugin)
 
 
 
@@ -35,8 +35,6 @@ sys.path.extend([PROJECT_BASE_PATH, PLUGIN_PATH, AIRFLOW_PATH])
 
 下载地址：https://github.com/lattebank/airflow-dag-creation-manager-plugin/archive/master.zip
 
-
-
 ```bash
 # 解压
 unzip airflow-dag-creation-manager-plugin-master.zip
@@ -62,10 +60,10 @@ dag_creation_manager_line_interpolate = basis
 
 # Choices for queue and pool
 # 指定 QUEUE 和 POOL
-dag_creation_manager_queue_pool = default_queue_pool:default|default_pool
+dag_creation_manager_queue_pool = default:default|default_pool
 
 # MR queue for queue pool
-dag_creation_manager_queue_pool_mr_queue = default_queue_pool:default_mr_queue
+dag_creation_manager_queue_pool_mr_queue = default_pool:default
 
 # Category for display
 dag_creation_manager_category = custom
@@ -102,19 +100,21 @@ DAG_CREATION_MANAGER_QUEUE_POOL_DICT = dict(DAG_CREATION_MANAGER_QUEUE_POOL)
 
 ```bash
 # Choices for queue and pool
-dag_creation_manager_queue_pool = master_queue_pool:master_queue|master_pool
+dag_creation_manager_queue_pool = default:master_queue|mydefault
 
 # MR queue for queue pool
 dag_creation_manager_queue_pool_mr_queue = master_queue_pool:master_mr_queue
 ```
 
-那么消费者指定队列为
+以上诉为例，则`default` 为 key 的名字，这个 key 会在 dcmp 创建 dag 的 task 时显示出来，需要勾选。 `master_queue` 为 `queue` 的名字，`default_pool`为 pool 的名字。。
+
+`airflow worker` 启动时，默认消费队列 `default`，如果这里是指定非 `default` 的，那么 worker 在启动时，需要指定对应的队列，如
 
 ```bash
 airflow worker -q master_queue
 ```
 
-在 web ui 创建的 pool为 `master_pool`
+airflow 默认的 pool 就是 `default_pool`，因此这里如果指定的 pool 不是 `default_pool`，那么就还需要在 airflow 的 web ui 中进行创建。例如上述配置的话，在 web ui 创建的 pool为 `mydefault`
 
 
 #### 5. 更新数据库
@@ -148,7 +148,7 @@ airflow worker -q mydefault
 
 ### 三、DCMP 下创建和管理 dag
 
-访问：localhost:8086
+访问：[localhost:8086](localhost:8086)
 
 如果 Admin 下出现 `DAG Creation Manager` ，就证明已经把 DCMP 集成进来了。
 
@@ -160,6 +160,9 @@ airflow worker -q mydefault
 Amdin - Pool
 
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/admin_pool.png)
+
+Slots 可以设置个不为0的数即可
+
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/create_pool.png)
 
 
@@ -340,7 +343,8 @@ else if(task_type == "bash"){
                     field_html.push('<textarea ' + (readonly? ' readonly="readonly" ': '') + ' id="ace_' + task_id + '_' + task_type + '" class="form-control" rows="1" name="command">' + (task_type == task[field_name]? task["command"]: '') + '</textarea>');
                     field_html.push(render_help);
                     field_html.push(get_ace_script(task_type, "sh", 1));
-                }else if(task_type == "my_bash"){
+                }
+else if(task_type == "my_bash"){
                     field_html.push('<textarea ' + (readonly? ' readonly="readonly" ': '') + ' id="ace_' + task_id + '_' + task_type + '" class="form-control" rows="1" name="command">' + (task_type == task[field_name]? task["command"]: '') + '</textarea>');
                     field_html.push(render_help);
                     field_html.push(get_ace_script(task_type, "sh", 1));
@@ -348,4 +352,92 @@ else if(task_type == "bash"){
 ```
 
 到此，就在 dcmp 里集成了自定义的 operator 了。
+
+### 五、DCMP 开启
+
+假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。
+
+如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 `EXpand All /Collapse All` ，然后勾选 `Skip DAG Not Latest`（跳过非最新的 dag）  和 `Skip DAGS On Prew Running`
+
+- **Skip DAG Not Latest**：跳过非最新的 dag。如我们停一段时间后再启动，之前的任务不会执行，只会执行最新的。
+- **Skip DAGS On Prew Running**：同一个 dag 的上次任务还在执行未结束，则跳过此次执行。这种适用于任务的执行的时间可能会超过任务的调度间隔时间，而同一时间我们又不想执行多个任务。
+
+![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/skip_dag_not_latest.png)
+
+
+
+但问题来了，勾选创建 dag 之后，我们发现 `scheduler` 抛出异常了
+
+```bash
+scheduler    |   File "/usr/local/lib/python3.7/site-packages/pymysql/connections.py", line 684, in _read_packet
+scheduler    |     packet.check_error()
+scheduler    |   File "/usr/local/lib/python3.7/site-packages/pymysql/protocol.py", line 220, in check_error
+scheduler    |     err.raise_mysql_exception(self._data)
+scheduler    |   File "/usr/local/lib/python3.7/site-packages/pymysql/err.py", line 109, in raise_mysql_exception
+scheduler    |     raise errorclass(errno, errval)
+scheduler    | pymysql.err.IntegrityError: (1048, "Column 'pool' cannot be null")
+```
+
+说的是 pool 为空值，这时候打开 dag ，查看代码，发现 `skip_dag_not_latest_or_when_previous_running` 这个 task 下 的 `pool` 确实是 None 的。
+
+![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_none.png)
+
+这里的 task_name 的命名规则可看源码  scheduler/plugins/dcmp/dag_converter.py:331
+
+```python
+if conf["skip_dag_not_latest"] or conf["skip_dag_on_prev_running"]:
+    task_name = []
+    if conf["skip_dag_not_latest"]:
+        task_name.append("not_latest")
+    if conf["skip_dag_on_prev_running"]:
+        task_name.append("when_previous_running")
+    task_name = "_or_".join(task_name)
+    task_name = "skip_dag_" + task_name
+    task_name = get_task_name(task_name)
+    if task_name:
+        command = """
+```
+
+dag中的每个节点都是一个任务，dag中的边表示的是任务之间的依赖（强制为有向无环，因此不会出现循环依赖，从而导致无限执行循环）。
+
+从上述 dmcp 生成的代码可以看出，当我们勾选  `Skip DAG Not Latest`  或 `Skip DAGS On Prew Running` 时，其他会生成一个 task，且会与我们原本创建的 task（在上图是 task_test）形成一个依赖关系，A << B 的意思是 A 依赖于 B，B先执行A后执行。
+
+| 序号 | 概念                | 解释                     |
+| :--- | :------------------ | :----------------------- |
+| 1    | A >> B              | B依赖于A，A先执行B后执行 |
+| 2    | A << B              | A依赖于B，B先执行A后执行 |
+| 3    | A.set_downstream(B) | 等同于 A >> B            |
+| 4    | A.set_upstream(B)   | 等同于 B >> A            |
+
+看起来这应该是个 bug？那我们从源码入手，修改源代码: scheduler/plugins/dcmp/dag_converter.py:432
+
+```python
+def render_confs(self, confs):
+    for task in conf["tasks"]:
+        queue_pool = dcmp_settings.DAG_CREATION_MANAGER_QUEUE_POOL_DICT.get(task["queue_pool"])
+        if not queue_pool:
+            # 获取默认的第一个配置
+            queue_pool = dcmp_settings.DAG_CREATION_MANAGER_QUEUE_POOL[0][-1]
+        if queue_pool:
+            queue, pool = queue_pool
+            task["queue_code"] = "'%s'" % queue
+            task["pool_code"] = "'%s'" % pool
+        else:
+            task["queue_code"] = "'%s'" % configuration.get("celery", "default_queue")
+            task["pool_code"] = "None"
+```
+
+这样就是获取了 airflow.cfg 下的第一个配置
+
+```bash
+dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queue|test_pool
+```
+
+如上，如果配置了两个，就是默认获取 `default` 这个，其 queue 为 `default`，pool 为 `default_pool`。
+
+当然，以上源码的改动是按照我自己的需求来改的，如果有其他需求，就按其他方式改，这里仅提供一个参考。
+
+修改完后，再创建的 dag 中，`skip_dag_not_latest_or_when_previous_running` 应该如下。
+
+![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png)
 
