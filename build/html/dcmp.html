@@ -112,7 +112,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">2. dcmp 加入自定的 operator</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 跳过非最新 dag</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 跳过非最新 dag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">如何跳过非最新 dag？</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bug">修复源码 bug</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
@@ -373,7 +377,7 @@ Tue Dec  <span class="m">8</span> <span class="m">17</span>:02:06 CST <span clas
 
 BashOperator<span class="o">(</span>
     <span class="nv">task_id</span><span class="o">=</span><span class="s2">&quot;bash_task_demo&quot;</span>,
-    <span class="nv">bash_command</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;cd /app/my-project &amp;&amp; python -m tasks.task_file run --send2spider=kuaishou_user_video_list --kwargs=&quot;{&#39;</span>data<span class="s1">&#39;:{&#39;</span>ttl<span class="s1">&#39;: 40, &#39;</span>priority<span class="s1">&#39;: 3, &#39;</span>initiator<span class="s1">&#39;: &#39;</span>checker.baton<span class="s1">&#39;}, &#39;</span>media<span class="s1">&#39;:&#39;</span>kuaishou<span class="s1">&#39;,&#39;</span>caller_type<span class="s1">&#39;: &#39;</span>user_info<span class="s1">&#39;, &#39;</span>arg_list<span class="s1">&#39;:[&#39;</span>uid<span class="s1">&#39;], &#39;</span>value<span class="s1">&#39;:&#39;</span>/Users/wu/Work/youmi/projects/ym-crawler-ccs/tasks/ks_uid_test.txt<span class="s1">&#39;}&quot;&#39;&#39;&#39;</span>,
+    <span class="nv">bash_command</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;echo hello&#39;&#39;&#39;</span>,
     <span class="nv">dag</span><span class="o">=</span>dag,
 <span class="o">)</span>
 </pre></div>
@@ -410,17 +414,17 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
 <div class="section" id="id4">
 <h3>2. dcmp 加入自定的 operator<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
 <p>dcmp 是开源的，因此我们只需要找到相应的地方，改动下源码即可</p>
-<p>a. scheduler/plugins/dcmp/dag_templates/dag_code.template</p>
+<p>a. dcmp/dag_templates/dag_code.template</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入自定义的 Operator</span>
 <span class="kn">from</span> <span class="nn">scheduler.plugins.my_bash_operator</span> <span class="kn">import</span> <span class="n">MyBashOperator</span>
 </pre></div>
 </div>
-<p>b. scheduler/plugins/dcmp/settings.py</p>
+<p>b. dcmp/settings.py:8</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 找到这句，改为如下</span>
 <span class="n">TASK_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;my_bash&quot;</span><span class="p">,</span> <span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;hql&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;short_circuit&quot;</span><span class="p">,</span> <span class="s2">&quot;partition_sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;time_sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;timedelta_sensor&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>c. scheduler/plugins/dcmp/dag_creation_manager_plugin.py</p>
+<p>c. dcmp/dag_creation_manager_plugin.py</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">command_render</span><span class="p">(</span><span class="n">task_type</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
     <span class="n">attr_renderer</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;my_bash&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">render</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lexers</span><span class="o">.</span><span class="n">BashLexer</span><span class="p">),</span>
@@ -435,7 +439,7 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>d.scheduler/plugins/dcmp/dag_converter.py</p>
+<p>d. dcmp/dag_converter.py</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DAGConverter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="n">My_BASH_TASK_CODE_TEMPLATE</span> <span class="o">=</span> <span class="n">BASE_TASK_CODE_TEMPLATE</span> <span class="o">%</span> <span class="p">{</span>
         <span class="s2">&quot;before_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -457,7 +461,7 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
     <span class="p">}</span>
 </pre></div>
 </div>
-<p>e.  scheduler/plugins/dcmp/static/dcmp/js/edit.js</p>
+<p>e.  dcmp/static/dcmp/js/edit.js</p>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nb">window</span><span class="p">.</span><span class="nx">default_task</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nx">task_name</span><span class="o">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="c1">// 把自定义的改为默认</span>
@@ -483,6 +487,8 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
 </div>
 <div class="section" id="id5">
 <h2>五、DCMP 跳过非最新 dag<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id6">
+<h3>如何跳过非最新 dag？<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h3>
 <p>假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。</p>
 <p>如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 <code class="docutils literal notranslate"><span class="pre">EXpand</span> <span class="pre">All</span> <span class="pre">/Collapse</span> <span class="pre">All</span></code> ，然后勾选 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>（跳过非最新的 dag）  和 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code></p>
 <ul class="simple">
@@ -524,7 +530,25 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 | 2    | A &lt;&lt; B              | A依赖于B，B先执行A后执行 |
 | 3    | A.set_downstream(B) | 等同于 A &gt;&gt; B            |
 | 4    | A.set_upstream(B)   | 等同于 B &gt;&gt; A            |</p>
-<p>看起来这应该是个 bug？那我们从源码入手，修改源代码: scheduler/plugins/dcmp/dag_converter.py:432</p>
+</div>
+</div>
+<div class="section" id="bug">
+<h2>修复源码 bug<a class="headerlink" href="#bug" title="永久链接至标题">¶</a></h2>
+<p>从源码看起来这应该是个 bug？因此当我们通过勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code> 这种方式生成的 task，是没有指定 <strong>Queue Pool</strong>的，因此这里的 queue pool 为 None ，此时 <code class="docutils literal notranslate"><span class="pre">queue_code</span></code>(即 queue) 取 <code class="docutils literal notranslate"><span class="pre">configuration.get(&quot;celery&quot;,</span> <span class="pre">&quot;default_queue&quot;)</span></code> 默认值为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，<code class="docutils literal notranslate"><span class="pre">pool_code</span> <span class="pre">=</span> <span class="pre">None</span></code></p>
+<p>那我们从源码入手，修改源代码: dcmp/dag_converter.py:432</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]:</span>
+        <span class="n">queue_pool</span> <span class="o">=</span> <span class="n">dcmp_settings</span><span class="o">.</span><span class="n">DAG_CREATION_MANAGER_QUEUE_POOL_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_pool&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">queue_pool</span><span class="p">:</span>
+            <span class="n">queue</span><span class="p">,</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">queue_pool</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">queue</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">pool</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;celery&quot;</span><span class="p">,</span> <span class="s2">&quot;default_queue&quot;</span><span class="p">)</span>
+            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+</pre></div>
+</div>
+<p>知道这个问题后，那我们来修复下就好了</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]:</span>
         <span class="n">queue_pool</span> <span class="o">=</span> <span class="n">dcmp_settings</span><span class="o">.</span><span class="n">DAG_CREATION_MANAGER_QUEUE_POOL_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_pool&quot;</span><span class="p">])</span>
@@ -535,9 +559,6 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
             <span class="n">queue</span><span class="p">,</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">queue_pool</span>
             <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">queue</span>
             <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">pool</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;queue_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;celery&quot;</span><span class="p">,</span> <span class="s2">&quot;default_queue&quot;</span><span class="p">)</span>
-            <span class="n">task</span><span class="p">[</span><span class="s2">&quot;pool_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
 </pre></div>
 </div>
 <p>这样就是获取了 airflow.cfg 下的第一个配置</p>
@@ -548,6 +569,28 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 <p>当然，以上源码的改动是按照我自己的需求来改的，如果有其他需求，就按其他方式改，这里仅提供一个参考。</p>
 <p>修改完后，再创建的 dag 中，<code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest_or_when_previous_running</span></code> 应该如下。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" /></p>
+<p>源码默认<code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>  或 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code> 都为 <code class="docutils literal notranslate"><span class="pre">False</span></code>。</p>
+<p>但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">DEFAULT_CONF</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;retries&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;retry_delay_minutes&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_failure&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_retry&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;depends_on_past&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;max_active_runs&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;add_start_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;add_end_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;skip_dag_not_latest&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;email_on_skip_dag&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;emails&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 

@@ -232,7 +232,7 @@ dag = DAG(
 
 BashOperator(
     task_id="bash_task_demo",
-    bash_command='''cd /app/my-project && python -m tasks.task_file run --send2spider=kuaishou_user_video_list --kwargs="{'data':{'ttl': 40, 'priority': 3, 'initiator': 'checker.baton'}, 'media':'kuaishou','caller_type': 'user_info', 'arg_list':['uid'], 'value':'/Users/wu/Work/youmi/projects/ym-crawler-ccs/tasks/ks_uid_test.txt'}"''',
+    bash_command='''echo hello''',
     dag=dag,
 )
 ```
@@ -274,21 +274,21 @@ class MyBashOperator(BashOperator):
 
 dcmp 是开源的，因此我们只需要找到相应的地方，改动下源码即可
 
-a. scheduler/plugins/dcmp/dag_templates/dag_code.template
+a. dcmp/dag_templates/dag_code.template
 
 ```python
 # 导入自定义的 Operator
 from scheduler.plugins.my_bash_operator import MyBashOperator
 ```
 
-b. scheduler/plugins/dcmp/settings.py
+b. dcmp/settings.py:8
 
 ```python
 # 找到这句，改为如下
 TASK_TYPES = ["my_bash", "bash", "hql", "python", "short_circuit", "partition_sensor", "time_sensor", "timedelta_sensor"]
 ```
 
-c. scheduler/plugins/dcmp/dag_creation_manager_plugin.py
+c. dcmp/dag_creation_manager_plugin.py
 
 ```python
 def command_render(task_type, command):
@@ -305,7 +305,7 @@ def command_render(task_type, command):
     }
 ```
 
-d.scheduler/plugins/dcmp/dag_converter.py
+d. dcmp/dag_converter.py
 
 ```python
 class DAGConverter(object):
@@ -330,7 +330,7 @@ class DAGConverter(object):
 
 ```
 
-e.  scheduler/plugins/dcmp/static/dcmp/js/edit.js
+e.  dcmp/static/dcmp/js/edit.js
 
 ```js
 window.default_task = {
@@ -356,6 +356,8 @@ else if(task_type == "my_bash"){
 到此，就在 dcmp 里集成了自定义的 operator 了。
 
 ### 五、DCMP 跳过非最新 dag
+
+#### 如何跳过非最新 dag？
 
 假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。
 
@@ -411,7 +413,26 @@ dag中的每个节点都是一个任务，dag中的边表示的是任务之间�
 | 3    | A.set_downstream(B) | 等同于 A >> B            |
 | 4    | A.set_upstream(B)   | 等同于 B >> A            |
 
-看起来这应该是个 bug？那我们从源码入手，修改源代码: scheduler/plugins/dcmp/dag_converter.py:432
+### 修复源码 bug
+
+从源码看起来这应该是个 bug？因此当我们通过勾选  `Skip DAG Not Latest` 这种方式生成的 task，是没有指定 **Queue Pool**的，因此这里的 queue pool 为 None ，此时 `queue_code`(即 queue) 取 `configuration.get("celery", "default_queue")` 默认值为 `default`，`pool_code = None`
+
+那我们从源码入手，修改源代码: dcmp/dag_converter.py:432
+
+```python
+def render_confs(self, confs):
+    for task in conf["tasks"]:
+        queue_pool = dcmp_settings.DAG_CREATION_MANAGER_QUEUE_POOL_DICT.get(task["queue_pool"])
+        if queue_pool:
+            queue, pool = queue_pool
+            task["queue_code"] = "'%s'" % queue
+            task["pool_code"] = "'%s'" % pool
+        else:
+            task["queue_code"] = "'%s'" % configuration.get("celery", "default_queue")
+            task["pool_code"] = "None"
+```
+
+知道这个问题后，那我们来修复下就好了
 
 ```python
 def render_confs(self, confs):
@@ -424,9 +445,6 @@ def render_confs(self, confs):
             queue, pool = queue_pool
             task["queue_code"] = "'%s'" % queue
             task["pool_code"] = "'%s'" % pool
-        else:
-            task["queue_code"] = "'%s'" % configuration.get("celery", "default_queue")
-            task["pool_code"] = "None"
 ```
 
 这样就是获取了 airflow.cfg 下的第一个配置
@@ -442,3 +460,28 @@ dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queu
 修改完后，再创建的 dag 中，`skip_dag_not_latest_or_when_previous_running` 应该如下。
 
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png)
+
+源码默认`Skip DAG Not Latest`  或 `Skip DAGS On Prew Running` 都为 `False`。
+
+但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py
+
+```python
+ DEFAULT_CONF = {
+        "retries": 3,
+        "retry_delay_minutes": 5,
+        "start_date": "",
+        "end_date": "",
+        "email_on_failure": True,
+        "email_on_retry": False,
+        "depends_on_past": False,
+        "concurrency": 16,
+        "max_active_runs": 16,
+        "add_start_task": False,
+        "add_end_task": False,
+        "skip_dag_not_latest": True,
+        "skip_dag_on_prev_running": True,
+        "email_on_skip_dag": False,
+        "emails": "",
+        "tasks": [],
+    }
+```
