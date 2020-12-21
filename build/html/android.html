@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等 &mdash; my-cookbook 0.1 文档</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="prev" title="DCMP - Airflow集成自动生成DAG插件" href="dcmp.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> my-cookbook
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dcmp.html">DCMP - Airflow集成自动生成DAG插件</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bl">一、 BL 解锁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">二、刷入系统</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#twrp">三、刷入 twrp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magisk">四、刷入 Magisk</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-rec-magisk-v21-1-zip">a. 用三方 REC 卡刷 Magisk-v21.1.zip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b-magisk-manager-v8-0-3-apk">b. 通过  Magisk Manager v8.0.3.apk 安装</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">五、刷入 Magisk 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edxpose">六、刷入 EdXpose</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">my-cookbook</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/android.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pixel-twrpmagisk-edxpose">
+<h1>Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等<a class="headerlink" href="#pixel-twrpmagisk-edxpose" title="永久链接至标题">¶</a></h1>
+<div class="section" id="bl">
+<h2>一、 BL 解锁<a class="headerlink" href="#bl" title="永久链接至标题">¶</a></h2>
+<ol class="simple">
+<li><p>打开设置–&gt;关于手机，在版本号处连续点击7次，调出开发者选项。</p></li>
+<li><p>打开设置–&gt;系统–&gt;高级–&gt;开发者选项，打开USB调试开关和OEM解锁。</p></li>
+</ol>
+<p>如 <code class="docutils literal notranslate"><span class="pre">adb</span> <span class="pre">devices</span></code> 出现设置，则正式 USB 调试已打开</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ adb devices
+List of devices attached
+FA75P0306887	device
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>若OEM解锁开关无法点击，在通知栏中将USB连接模式由充电模式改为文件传输模式。</p></li>
+<li><p>打开命令行工具，分两次输入以下两条指令：</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>adb reboot bootloader
+
+<span class="c1"># Pixel 2 XL 之后的版本</span>
+fastboot flashing unlock
+
+<span class="c1"># Pixel 2 XL 及之前的版本</span>
+fastboot oem unlock
+</pre></div>
+</div>
+<p>注意：解锁只需要解一次，解锁之后千万不要随意锁上；锁上之前最好是把手机重刷一遍，保证不安装其他东西，然后再上锁。</p>
+</div>
+<div class="section" id="id1">
+<h2>二、刷入系统<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
+<p>根据twrp工具的作者发的一篇文章：</p>
+<p>https://twrp.me/site/update/2019/10/23/twrp-and-android-10.html</p>
+<p>目前twrp工具还不支持Android 10.0系统，所以如果想在pixel 上root，需要先安装9.0版本的系统，下载地址：</p>
+<p>https://developers.google.com/android/images#crosshatch</p>
+<p>下载pixel 相关机型的9.0系统，解压，然后进入解压后的目录</p>
+<p>在USB调试打开的情况下，键入命令，进入 bootloader 模式：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adb</span> <span class="n">reboot</span> <span class="n">bootloader</span>
+</pre></div>
+</div>
+<p>也可在开机时，同时按住电源键+音量减，进入bootloader (不同的手机进入方式稍微有所差别)</p>
+<p>查看序列号</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>fastboot devices -l
+</pre></div>
+</div>
+<p>若出来一串序列号，说明安卓设备已连接</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>adb reboot bootloader
+
+<span class="c1"># Linux/Mac（如果是 window，则执行 flash-all.bat 这个文件）</span>
+sh flash-all.sh
+</pre></div>
+</div>
+<p>特别注意：官方脚本线刷默认是清除数据的，若想保留数据线刷，请使用Notepad++编辑脚本，将脚本中的-w删掉并保存脚本，再双击刷入即可保留数据。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>fastboot -w update image-sailfish-opm4.171019.021.p1.zip
+</pre></div>
+</div>
+<p>等待刷入后，手机重启，并会自动安装9.0系统。</p>
+</div>
+<div class="section" id="twrp">
+<h2>三、刷入 twrp<a class="headerlink" href="#twrp" title="永久链接至标题">¶</a></h2>
+<p>Recovery 是安卓的恢复系统，类似 Windows 的 PE 和 macOS 的恢复功能，可以用来系统升级和重置手机</p>
+<p>刷入第三方的 Recovery 可以获得更多的功能，比如 Root 和 刷入第三方 ROM</p>
+<p>到官方下载对应的 twrp，https://twrp.me/Devices/</p>
+<p>搜索对应的型号：</p>
+<p><img alt="twrp" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/android/twrp.png" /></p>
+<p>如 pixel 1，则选择 <code class="docutils literal notranslate"><span class="pre">Google</span> <span class="pre">Pixel（salifish）</span></code>，因为 pixel 比较特殊，还有欧版跟美版的区别，因此进去之后，还要选择欧版或者美版。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/android/salifish.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/android/salifish.png" /></p>
+<p>然后我们再分别下载某个 img 和 zip，例如在这里，我下载的是 <a class="reference external" href="https://eu.dl.twrp.me/sailfish/twrp-pixel-installer-sailfish-3.3.0-0.zip.html">twrp-pixel-installer-sailfish-3.3.0-0.zip</a> 和 <a class="reference external" href="https://eu.dl.twrp.me/sailfish/twrp-3.3.0-0-sailfish.img.html">twrp-3.3.0-0-sailfish.img</a></p>
+<p>img是用来刷临时twrp recovery，zip刷的是正式twrp recovery</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>adb reboot bootloader
+
+<span class="c1"># 刷入临时 twrp recovery</span>
+fastboot boot twrp-3.3.0-0-sailfish.img
+
+<span class="c1"># 直接进入 recovery</span>
+fastboot reboot twrp-3.3.0-0-sailfish.img
+
+<span class="c1"># 或者先重启后再进入 recovery</span>
+fastboot reboot
+<span class="c1"># 进入 recovery 模式</span>
+fastboot reboot recovery
+</pre></div>
+</div>
+<p>在 <code class="docutils literal notranslate"><span class="pre">recovery</span> <span class="pre">模式</span></code> 下刷入<code class="docutils literal notranslate"><span class="pre">zip</span> <span class="pre">包</span></code> 有两种方式</p>
+<p><strong>a. 手动刷入</strong>：</p>
+<ol class="simple">
+<li><p>拷贝 zip 压缩包到手机存储卡中：<code class="docutils literal notranslate"><span class="pre">adb</span> <span class="pre">push</span> <span class="pre">twrp-pixel-installer-sailfish-3.3.0-0.zip</span> <span class="pre">/sdcard</span></code></p></li>
+<li><p>点击第一个选项 <code class="docutils literal notranslate"><span class="pre">install</span></code></p></li>
+<li><p>拉到最下面，找到要刷的模块，例如 <code class="docutils literal notranslate"><span class="pre">twrp-pixel-installer-sailfish-3.3.0-0.zip</span></code>，点击即可</p></li>
+<li><p>接着会跳到 <code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">zip</span></code> 页面，这时候在下方把 <code class="docutils literal notranslate"><span class="pre">Swipe</span> <span class="pre">to</span> <span class="pre">confirm</span> <span class="pre">Flash</span></code> 拉到最右即可</p></li>
+<li><p>最后 <code class="docutils literal notranslate"><span class="pre">Reboot</span> <span class="pre">System</span></code> 重启手机</p></li>
+</ol>
+<p><strong>b. 自动刷入</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># sideload 准备模式</span>
+adb shell twrp sideload
+<span class="c1"># 刷入 zip 包，如 twrp-pixel-installer-sailfish-3.3.0-0.zip</span>
+adb sideload twrp-pixel-installer-sailfish-3.3.0-0.zip
+
+<span class="c1"># 刷完之后重启</span>
+adb reboot
+</pre></div>
+</div>
+<p>如果有些机型没有 <code class="docutils literal notranslate"><span class="pre">zip</span></code> 包，如红米 note3，只有<code class="docutils literal notranslate"><span class="pre">img</span></code> ，那直接刷入<code class="docutils literal notranslate"><span class="pre">img</span></code> 即可</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>fastboot flash recovery twrp-3.3.1-0-hennessy.img
+<span class="c1"># 重启</span>
+fastboot reboot
+<span class="c1"># 或者重启到 recovery</span>
+fastboot boot twrp-3.3.1-0-hennessy.img
+</pre></div>
+</div>
+</div>
+<div class="section" id="magisk">
+<h2>四、刷入 Magisk<a class="headerlink" href="#magisk" title="永久链接至标题">¶</a></h2>
+<p>推荐阅读：<a class="reference external" href="https://sspai.com/post/53043">Magisk 是如何工作的？</a></p>
+<p>Magisk 是一个兼具稳定性和可玩性的神器：作为一个 Root 方案，它能不破坏系统实现无痛 OTA，作为一个插件扩展平台，它又能提供丰富的自定义模块来满足多样化的定制需求</p>
+<p>安装 <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases">Magisk</a>， 版本不低于 20.4。安装方式有两种</p>
+<div class="section" id="a-rec-magisk-v21-1-zip">
+<h3>a. 用三方 REC 卡刷 <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/v21.1">Magisk-v21.1.zip</a><a class="headerlink" href="#a-rec-magisk-v21-1-zip" title="永久链接至标题">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 进入 recovery 模式</span>
+adb reboot recovery
+
+<span class="c1"># sideload 准备模式</span>
+adb shell twrp sideload
+<span class="c1"># 刷入 magisk</span>
+adb sideload Magisk-v20.2.zip
+
+<span class="c1"># sideload 准备模式</span>
+adb shell twrp sideload
+<span class="c1"># 刷入 zip 包，如 magisk 下的模块</span>
+adb sideload Magisk/Move_Certificates-v1.9.zip
+
+<span class="c1"># 重启手机</span>
+adb reboot
+</pre></div>
+</div>
+<p>当然也可以手动刷，可参考步骤三中刷入 <code class="docutils literal notranslate"><span class="pre">twrp-pixel-installer-sailfish-3.3.0-0.zip</span></code></p>
+</div>
+<div class="section" id="b-magisk-manager-v8-0-3-apk">
+<h3>b. 通过  <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.3">Magisk Manager v8.0.3.apk</a> 安装<a class="headerlink" href="#b-magisk-manager-v8-0-3-apk" title="永久链接至标题">¶</a></h3>
+<p>安装完 Magisk Manager apk后， 选择安装（需要手机可以 fanqiang），安装后重启手机</p>
+<p>卸载 Magisk 最为彻底的方式就是在 Magisk Manager 中点击「卸载」、「完全卸载」，应用会自动下载刷完 uninstall.zip 卸载包、自动卸载它自己、自动重启。如果你无法进入系统，在 TWRP 中手动刷入 uninstall.zip 卸载包即可。</p>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>五、刷入 Magisk 模块<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<p>在安装完 magisk 之后，我们的手机就已经是 root 状态了。此时我们还可以安装 magisk 的一些模块来实现某些功能。例如Android 7以上的 Android 系统，App默认不信任用户证书,只信任系统证书。例如<code class="docutils literal notranslate"><span class="pre">Move_Certificates.zip</span> </code>的作用就是帮我们把证书从用户目录移动系统目录。安装 <code class="docutils literal notranslate"><span class="pre">Magisk</span> <span class="pre">模块</span></code> 的方式也有几种</p>
+<p><strong>1. 通过 magisk 在线安装</strong></p>
+<p>这种最为简单，但是需要手机可以 fanqiang。</p>
+<p><strong>2. <a class="reference external" href="https://github.com/Magisk-Modules-Repo?q=&amp;type=&amp;language=">Magisk 官方仓库</a> 下载 zip 包，然后 adb push 推到手机里，再通过 magisk 安装</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>adb push Magisk/Move_Certificates-v1.9.zip /sdcard
+</pre></div>
+</div>
+<p>选择<code class="docutils literal notranslate"><span class="pre">从本地安装</span></code>，选择好刚刚推到手机的模块，点击要安装的模块，安装完后重启手机即可</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/android/magis_install.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/android/magis_install.png" /></p>
+<p><strong>3. <a class="reference external" href="https://github.com/Magisk-Modules-Repo?q=&amp;type=&amp;language=">Magisk 官方仓库</a> 下载 zip 包，在 recovery 模式下安装</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 进入 recovery 模式</span>
+adb reboot recovery
+
+<span class="c1"># sideload 准备模式</span>
+adb shell twrp sideload
+<span class="c1"># 刷入 zip 包，如 magisk 下的模块</span>
+adb sideload Magisk/Move_Certificates-v1.9.zip
+
+<span class="c1"># 重启手机</span>
+adb reboot
+</pre></div>
+</div>
+</div>
+<div class="section" id="edxpose">
+<h2>六、刷入 EdXpose<a class="headerlink" href="#edxpose" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Magisk-Modules-Repo?q=&amp;type=&amp;language=">Magisk 官方仓库</a> 下载 zip 包，然后adb push 推到手机里，再通过 magisk 安装，参考<code class="docutils literal notranslate"><span class="pre">步骤五</span> <span class="pre">-</span> <span class="pre">刷入</span> <span class="pre">Magisk</span> <span class="pre">模块</span></code></p></li>
+<li><p>Magisk 在线安装（需要手机可以fanqiang)</p></li>
+</ul>
+<p>刷入 EdXpose 分为三步，分别是 magisk 安装 <code class="docutils literal notranslate"><span class="pre">Riru-Core</span></code>，magisk 安装 <code class="docutils literal notranslate"><span class="pre">edXposed</span></code>，安装 EdXposed 的app</p>
+<ol class="simple">
+<li><p>Magisk 安装 <code class="docutils literal notranslate"><span class="pre">Riru-Core</span></code>，可在线搜索 <code class="docutils literal notranslate"><span class="pre">Riru-Core</span></code> 或者 官方仓库找到 <a class="reference external" href="https://github.com/Magisk-Modules-Repo/riru-core">riru-core </a>安装</p></li>
+<li><p>Magisk 安装 <code class="docutils literal notranslate"><span class="pre">edXposed</span></code>，可在线搜索 <code class="docutils literal notranslate"><span class="pre">edXposed</span></code> （yahfa和sandhook版本二选一）或者 官方仓库找到 <a class="reference external" href="https://github.com/Magisk-Modules-Repo/riru_edxposed">edxpose</a>安装，安装完后记得重启手机</p></li>
+<li><p>下载EdXposed 的app：https://github.com/ElderDrivers/EdXposedManager/releases</p></li>
+</ol>
+<p>参考:</p>
+<p><a class="reference external" href="https://blog.csdn.net/u010838555/article/details/105655660">Pixel 3 XL 刷入EdXposed框架</a>
+<a class="reference external" href="https://www.jianshu.com/p/e4485cbaf3cd">EdXposed安装教程-支持Pie的Xposed构架</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dcmp.html" class="btn btn-neutral float-left" title="DCMP - Airflow集成自动生成DAG插件" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 版权所有 2020, wu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

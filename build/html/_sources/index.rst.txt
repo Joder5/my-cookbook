@@ -10,10 +10,8 @@ Welcome to my-cookbook's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   hello
-   test
    dcmp
-   ubuntu
+   android
 
 
 
