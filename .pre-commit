@@ -2,6 +2,8 @@
 # 如果命令行提供了文件/目录, 格式化指定的文件/目录, 否则格式化项目发生修改的文件
 # 拷贝到 .git/hooks/pre-commit
 
+make html
+
 if [ "$#" != "0" ]; then
     PYFILES="$(find $@ -name '*.py')"
 else
@@ -15,6 +17,6 @@ if test "$PYFILES"
 then
     isort -w 120 -fss -sl $PYFILES
     black -l 120 $PYFILES
-    make html
     git add $PYFILES
 fi
+
