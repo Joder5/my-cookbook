@@ -570,3 +570,8 @@ dag = DAG("tutorial", default_args=default_args, schedule_interval=timedelta(1),
 
 如果设置了 `catchup_by_default` 为 False 后，即不回填 dag 了，那此时 `skip_dag_not_latest` 似乎也没用了
 
+
+
+参考：
+
+[https://www.jianshu.com/p/e878bbc9ead2](
