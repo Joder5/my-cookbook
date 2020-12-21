@@ -570,24 +570,11 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 <p>修改完后，再创建的 dag 中，<code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest_or_when_previous_running</span></code> 应该如下。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/pool_is_not_none.png" /></p>
 <p>源码默认<code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>  或 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code> 都为 <code class="docutils literal notranslate"><span class="pre">False</span></code>。</p>
-<p>但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">DEFAULT_CONF</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;retries&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-        <span class="s2">&quot;retry_delay_minutes&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;email_on_failure&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;email_on_retry&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;depends_on_past&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
-        <span class="s2">&quot;max_active_runs&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
-        <span class="s2">&quot;add_start_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;add_end_task&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<p>但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py
+在 DEFAULT_CONF 配置下将 <code class="docutils literal notranslate"><span class="pre">skip_dag_not_latest</span></code> 和 <code class="docutils literal notranslate"><span class="pre">skip_dag_on_prev_running</span></code> 设置为 True</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DEFAULT_CONF</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;skip_dag_not_latest&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;email_on_skip_dag&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;emails&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">}</span>
 </pre></div>
 </div>

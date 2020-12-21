@@ -464,24 +464,10 @@ dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queu
 源码默认`Skip DAG Not Latest`  或 `Skip DAGS On Prew Running` 都为 `False`。
 
 但如果我们的场景都应该为 True，每次都去勾选有点麻烦，这时候我们还可以改下源码 dcmp/dag_creation_manager_plugin.py
-
+在 DEFAULT_CONF 配置下将 `skip_dag_not_latest` 和 `skip_dag_on_prev_running` 设置为 True
 ```python
- DEFAULT_CONF = {
-        "retries": 3,
-        "retry_delay_minutes": 5,
-        "start_date": "",
-        "end_date": "",
-        "email_on_failure": True,
-        "email_on_retry": False,
-        "depends_on_past": False,
-        "concurrency": 16,
-        "max_active_runs": 16,
-        "add_start_task": False,
-        "add_end_task": False,
+DEFAULT_CONF = {
         "skip_dag_not_latest": True,
         "skip_dag_on_prev_running": True,
-        "email_on_skip_dag": False,
-        "emails": "",
-        "tasks": [],
     }
 ```
