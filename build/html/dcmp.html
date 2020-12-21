@@ -114,9 +114,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 跳过非最新 dag</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id6">如何跳过非最新 dag？</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug">修复源码 bug</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#bug">修复源码 bug</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
@@ -531,9 +531,8 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 | 3    | A.set_downstream(B) | 等同于 A &gt;&gt; B            |
 | 4    | A.set_upstream(B)   | 等同于 B &gt;&gt; A            |</p>
 </div>
-</div>
 <div class="section" id="bug">
-<h2>修复源码 bug<a class="headerlink" href="#bug" title="永久链接至标题">¶</a></h2>
+<h3>修复源码 bug<a class="headerlink" href="#bug" title="永久链接至标题">¶</a></h3>
 <p>从源码看起来这应该是个 bug？因此当我们通过勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code> 这种方式生成的 task，是没有指定 <strong>Queue Pool</strong>的，因此这里的 queue pool 为 None ，此时 <code class="docutils literal notranslate"><span class="pre">queue_code</span></code>(即 queue) 取 <code class="docutils literal notranslate"><span class="pre">configuration.get(&quot;celery&quot;,</span> <span class="pre">&quot;default_queue&quot;)</span></code> 默认值为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，<code class="docutils literal notranslate"><span class="pre">pool_code</span> <span class="pre">=</span> <span class="pre">None</span></code></p>
 <p>那我们从源码入手，修改源代码: dcmp/dag_converter.py:432</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
@@ -577,6 +576,7 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
         <span class="s2">&quot;skip_dag_on_prev_running&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 </pre></div>
+</div>
 </div>
 </div>
 </div>

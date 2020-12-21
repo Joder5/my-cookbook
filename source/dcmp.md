@@ -413,7 +413,7 @@ dag中的每个节点都是一个任务，dag中的边表示的是任务之间�
 | 3    | A.set_downstream(B) | 等同于 A >> B            |
 | 4    | A.set_upstream(B)   | 等同于 B >> A            |
 
-### 修复源码 bug
+#### 修复源码 bug
 
 从源码看起来这应该是个 bug？因此当我们通过勾选  `Skip DAG Not Latest` 这种方式生成的 task，是没有指定 **Queue Pool**的，因此这里的 queue pool 为 None ，此时 `queue_code`(即 queue) 取 `configuration.get("celery", "default_queue")` 默认值为 `default`，`pool_code = None`
 
