@@ -150,7 +150,7 @@ airflow worker -q mydefault
 
 ### 三、DCMP 下创建和管理 dag
 
-访问：[localhost:8086](localhost:8086)
+访问：localhost:8086
 
 如果 Admin 下出现 `DAG Creation Manager` ，就证明已经把 DCMP 集成进来了。
 

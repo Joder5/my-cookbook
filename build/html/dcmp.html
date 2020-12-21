@@ -112,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">2. dcmp 加入自定的 operator</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 开启</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">五、DCMP 跳过非最新 dag</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
@@ -187,6 +187,7 @@
 <p>Github 地址: <a class="reference external" href="https://github.com/lattebank/airflow-dag-creation-manager-plugin">Airflow DAG Creation Manager Plugin</a></p>
 <div class="section" id="dcmp">
 <h2>一、集成 DCMP 插件：<a class="headerlink" href="#dcmp" title="永久链接至标题">¶</a></h2>
+<p>dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 <code class="docutils literal notranslate"><span class="pre">dcmp/dag_templates/dag_code.template</span></code> 生成一段代码，然后写到本地上文件，这样就等同于我们手写的 dag 了。</p>
 <div class="section" id="plugins">
 <h3>1. 创建 plugins 目录<a class="headerlink" href="#plugins" title="永久链接至标题">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir  <span class="nv">$AIRFLOW_HOME</span>/plugins
@@ -481,7 +482,7 @@ class MyBashOperator<span class="o">(</span>BashOperator<span class="o">)</span>
 </div>
 </div>
 <div class="section" id="id5">
-<h2>五、DCMP 开启<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<h2>五、DCMP 跳过非最新 dag<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
 <p>假设场景是这样的：我们想停掉某个 dag，有需要的时候再启动。但是当再次启动时发现，dag 会把执行停掉这段时间的任务，而不是从当前时间执行最新的任务。这明显不符合我们的需求。</p>
 <p>如果是手写 dag 的话，需要自己写一段逻辑来跳过非最新的 dag。而 dcmp 帮我们继承了，只需要在创建 dag 的，点击 <code class="docutils literal notranslate"><span class="pre">EXpand</span> <span class="pre">All</span> <span class="pre">/Collapse</span> <span class="pre">All</span></code> ，然后勾选 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>（跳过非最新的 dag）  和 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code></p>
 <ul class="simple">
