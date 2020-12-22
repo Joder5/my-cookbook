@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>一、Sphinx配置 &mdash; my-cookbook 0.1 文档</title>
+  <title>一、Sphinx + github + readthedocs 托管文档 &mdash; my-cookbook 0.1 文档</title>
   
 
   
@@ -86,19 +86,22 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dcmp.html">DCMP - Airflow集成自动生成DAG插件</a></li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">一、Sphinx配置</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">1. 安装Sphinx、及其插件</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">2. 初始化:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">3. 配置Sphinx主题，插件</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">3.1 配置主题</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">一、Sphinx + github + readthedocs 托管文档</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sphinx">一、Sphinx配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">1. 安装Sphinx、及其插件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">2. 初始化:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">3. 配置Sphinx主题，插件</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">3.1 配置主题</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">3.2 拓展插件支持</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">4. 自动编译</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">3.2 拓展插件支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">4. 自动编译</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#readthedocs-org">二、托管 readthedocs.org</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#id7">三、常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#readthedocs-org">二、托管 readthedocs.org</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">三、常见问题</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -145,7 +148,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>一、Sphinx配置</li>
+      <li>一、Sphinx + github + readthedocs 托管文档</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,16 +167,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sphinx">
-<h1>一、Sphinx配置<a class="headerlink" href="#sphinx" title="永久链接至标题">¶</a></h1>
+  <div class="section" id="sphinx-github-readthedocs">
+<h1>一、Sphinx + github + readthedocs 托管文档<a class="headerlink" href="#sphinx-github-readthedocs" title="永久链接至标题">¶</a></h1>
+<div class="section" id="sphinx">
+<h2>一、Sphinx配置<a class="headerlink" href="#sphinx" title="永久链接至标题">¶</a></h2>
 <div class="section" id="id1">
-<h2>1. 安装Sphinx、及其插件<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
+<h3>1. 安装Sphinx、及其插件<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">sphinx</span> <span class="n">sphinx_rtd_theme</span> <span class="n">recommonmark</span> <span class="n">sphinx</span><span class="o">-</span><span class="n">markdown</span><span class="o">-</span><span class="n">tables</span> <span class="n">sphinxemoji</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="id2">
-<h2>2. 初始化:<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<h3>2. 初始化:<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建文档根目录</span>
 mkdir -p my-cookbook
 <span class="nb">cd</span> my-cookbook
@@ -219,9 +224,9 @@ sphinx-quickstart
 <p>然后在更目录执行<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>，进入<code class="docutils literal notranslate"><span class="pre">build/html</span></code>目录后用浏览器打开<code class="docutils literal notranslate"><span class="pre">index.html</span></code></p>
 </div>
 <div class="section" id="id3">
-<h2>3. 配置Sphinx主题，插件<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<h3>3. 配置Sphinx主题，插件<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h3>
 <div class="section" id="id4">
-<h3>3.1 配置主题<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<h4>3.1 配置主题<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h4>
 <p>修改<code class="docutils literal notranslate"><span class="pre">./source/conf.py</span></code>配置文件，添加配置如下：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sphinx_rtd_theme</span>
 <span class="n">html_theme</span> <span class="o">=</span> <span class="s2">&quot;sphinx_rtd_theme&quot;</span>
@@ -234,7 +239,7 @@ sphinx-quickstart
 </div>
 </div>
 <div class="section" id="id5">
-<h2>3.2 拓展插件支持<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<h3>3.2 拓展插件支持<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h3>
 <table border="1" class="docutils">
 <thead>
 <tr>
@@ -291,7 +296,7 @@ sphinxcontrib-serializinghtml<span class="o">==</span><span class="m">1</span>.1
 </div>
 </div>
 <div class="section" id="id6">
-<h2>4. 自动编译<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<h3>4. 自动编译<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h3>
 <p>每次改完，如果都生成新的 <code class="docutils literal notranslate"><span class="pre">html</span></code> 文件，都需要执行 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>。那我们可以通过 git 的 <code class="docutils literal notranslate"><span class="pre">.git/hooks/pre-commit</span></code> 都执行，<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code>之前都会执行这个脚本。这样就达到了，每次改完代码，我们 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code> 之前，都先自动编译，然后再提交即可</p>
 <p>vim .git/hooks/pre-commit</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
@@ -308,7 +313,7 @@ git add -A
 </div>
 </div>
 <div class="section" id="readthedocs-org">
-<h1>二、托管 readthedocs.org<a class="headerlink" href="#readthedocs-org" title="永久链接至标题">¶</a></h1>
+<h2>二、托管 readthedocs.org<a class="headerlink" href="#readthedocs-org" title="永久链接至标题">¶</a></h2>
 <p><a class="reference external" href="https://readthedocs.org/">Read the Docs</a>是一个开源项目文档托管和阅读工具。它提供了Sphinx文档的多种阅读方式，它主要有以下特点：</p>
 <ul class="simple">
 <li><p>支持多种形式的阅读，<code class="docutils literal notranslate"><span class="pre">web/pdf/epub</span></code>等，同时可以全文搜索</p></li>
@@ -325,7 +330,7 @@ git add -A
 <p>具体配置参考文档 <a class="reference external" href="https://docgenerate.readthedocs.io/en/latest/sphinx/3-release/1-docs.html">ReadtheDocs</a> 即可</p>
 </div>
 <div class="section" id="id7">
-<h1>三、常见问题<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h1>
+<h2>三、常见问题<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
 <ol>
 <li><p>如果网站托管在 <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 上，会看到 build 时出现异常，<code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'sphinx_markdown_tables'</span> </code>。</p>
 <p>这是因为在编译时，没有这个环境，应该就是没有上传 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 文件</p>
@@ -338,6 +343,7 @@ git add -A
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span></code> 推上去之后，就可以看到是正常构建完成了。里面有一条执行语句是 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--exists-action=w</span> <span class="pre">--no-cache-dir</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code> ，点开看这条语句，就发现它会安装好 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 里的环境变量了。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" /></p>
+</div>
 </div>
 
 
