@@ -582,13 +582,37 @@ scheduler    <span class="p">|</span> pymysql.err.IntegrityError: <span class="o
 </div>
 <p>dag中的每个节点都是一个任务，dag中的边表示的是任务之间的依赖（强制为有向无环，因此不会出现循环依赖，从而导致无限执行循环）。</p>
 <p>从上述 dmcp 生成的代码可以看出，当我们勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code>  或 <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAGS</span> <span class="pre">On</span> <span class="pre">Prew</span> <span class="pre">Running</span></code> 时，其他会生成一个 task，且会与我们原本创建的 task（在上图是 task_test）形成一个依赖关系，A &lt;&lt; B 的意思是 A 依赖于 B，B先执行A后执行。</p>
-<p>| 序号 | 概念                | 解释                     |
-| :— | :—————— | :———————– |
-| 1    | A &gt;&gt; B              | B依赖于A，A先执行B后执行 |
-| 2    | A &lt;&lt; B              | A依赖于B，B先执行A后执行 |
-| 3    | A.set_downstream(B) | 等同于 A &gt;&gt; B            |
-| 4    | A.set_upstream(B)   | 等同于 B &gt;&gt; A            |</p>
-<p>从源码看起来这应该是个 bug？因此当我们通过勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code> 这种方式生成的 task，是没有指定 <strong>Queue Pool</strong>的，因此这里的 queue pool 为 None ，此时 <code class="docutils literal notranslate"><span class="pre">queue_code</span></code>(即 queue) 取 <code class="docutils literal notranslate"><span class="pre">configuration.get(&quot;celery&quot;,</span> <span class="pre">&quot;default_queue&quot;)</span></code> 默认值为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，<code class="docutils literal notranslate"><span class="pre">pool_code</span> <span class="pre">=</span> <span class="pre">None</span></code></p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="left">序号</th>
+<th align="left">概念</th>
+<th align="left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1</td>
+<td align="left">A &gt;&gt; B</td>
+<td align="left">B依赖于A，A先执行B后执行</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">A &lt;&lt; B</td>
+<td align="left">A依赖于B，B先执行A后执行</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">A.set_downstream(B)</td>
+<td align="left">等同于 A &gt;&gt; B</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">A.set_upstream(B)</td>
+<td align="left">等同于 B &gt;&gt; A</td>
+</tr>
+</tbody>
+</table><p>从源码看起来这应该是个 bug？因此当我们通过勾选  <code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">DAG</span> <span class="pre">Not</span> <span class="pre">Latest</span></code> 这种方式生成的 task，是没有指定 <strong>Queue Pool</strong>的，因此这里的 queue pool 为 None ，此时 <code class="docutils literal notranslate"><span class="pre">queue_code</span></code>(即 queue) 取 <code class="docutils literal notranslate"><span class="pre">configuration.get(&quot;celery&quot;,</span> <span class="pre">&quot;default_queue&quot;)</span></code> 默认值为 <code class="docutils literal notranslate"><span class="pre">default</span></code>，<code class="docutils literal notranslate"><span class="pre">pool_code</span> <span class="pre">=</span> <span class="pre">None</span></code></p>
 <p>那我们从源码入手，修改源代码: dcmp/dag_converter.py:432</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_confs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confs</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">]:</span>
