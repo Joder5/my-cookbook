@@ -543,13 +543,21 @@ dag_creation_manager_queue_pool = default:default|default_pool,my_test:test_queu
     }
 ```
 
-#### 4. 防止回填 dag 
+#### 4. 禁用 Backfill - 防止回填 dag 
 
 在上面，我们设置了跳过非最新 dag。在 web ui 界面也可以看到，确实是跳过了，过去的 dag 任务都没有被执行到。
 
 但是有个问题，就是 dag 一直在回填，从过去一直在追赶到当前时间，一般是10来秒回填一次。
 
 如果这中间暂停 dag 的时间比较久，那回填到最新时间，也需要一段时间。而我们的需求可能是，这段时间的 dag 没必要回填。
+
+这就涉及到了 airflow 的 Backfill 机制，可以简单理解成当你错过了某一次执行时间之后，往回去补充执行的行为。
+
+官方文档的描述：[Catchup](https://airflow.apache.org/docs/apache-airflow/stable/dag-run.html#catchup)
+
+>  An Airflow DAG with a start_date, possibly an end_date, and a schedule_interval defines a series of intervals which the scheduler turns into individual DAG Runs and executes. The scheduler, by default, will kick off a DAG Run for any interval that has not been run since the last execution date (or has been cleared). This concept is called Catchup.
+>
+> 一个带有start_date(可能是end_date)和schedule_interval的 Airflow DAG 定义了一系列的间隔，调度器将这些间隔转换为单个DAG运行和执行。默认情况下，调度器将为自上次执行日期(或已清除)以来没有运行过的任何间隔启动DAG运行。这个概念叫做追赶。
 
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/airflow/catchup.png)
 
