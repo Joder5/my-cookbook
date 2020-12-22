@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>一、Sphinx配置 &mdash; my-cookbook 0.1 文档</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="prev" title="Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等" href="android.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> my-cookbook
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dcmp.html">DCMP - Airflow集成自动生成DAG插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="android.html">Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">一、Sphinx配置</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">1. 安装Sphinx、及其插件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">2. 初始化:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">3. 配置Sphinx主题，插件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">3.1 配置主题</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">3.2 拓展插件支持</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">4. 自动编译</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#readthedocs-org">二、托管 readthedocs.org</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#id7">三、常见问题</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">my-cookbook</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>一、Sphinx配置</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/sphinx.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sphinx">
+<h1>一、Sphinx配置<a class="headerlink" href="#sphinx" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id1">
+<h2>1. 安装Sphinx、及其插件<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">sphinx</span> <span class="n">sphinx_rtd_theme</span> <span class="n">recommonmark</span> <span class="n">sphinx</span><span class="o">-</span><span class="n">markdown</span><span class="o">-</span><span class="n">tables</span> <span class="n">sphinxemoji</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>2. 初始化:<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建文档根目录</span>
+mkdir -p my-cookbook
+<span class="nb">cd</span> my-cookbook
+<span class="c1"># 可以回车按默认配置来写</span>
+sphinx-quickstart
+</pre></div>
+</div>
+<p>下面是我填写的，其他基本上默认即可：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">Separate</span> <span class="n">source</span> <span class="ow">and</span> <span class="n">build</span> <span class="n">directories</span> <span class="p">(</span><span class="n">y</span><span class="o">/</span><span class="n">n</span><span class="p">)</span> <span class="p">[</span><span class="n">n</span><span class="p">]:</span><span class="n">y</span>
+<span class="o">&gt;</span> <span class="n">Project</span> <span class="n">name</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">cookbook</span>
+<span class="o">&gt;</span> <span class="n">Author</span> <span class="n">name</span><span class="p">(</span><span class="n">s</span><span class="p">):</span> <span class="n">wu</span>
+<span class="o">&gt;</span> <span class="n">Project</span> <span class="n">version</span> <span class="p">[]:</span> <span class="mf">0.1</span>
+<span class="o">&gt;</span> <span class="n">Project</span> <span class="n">release</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]:</span> <span class="mf">0.1</span>
+<span class="o">&gt;</span> <span class="n">Project</span> <span class="n">language</span> <span class="p">[</span><span class="n">en</span><span class="p">]:</span> <span class="n">zh_CN</span>
+</pre></div>
+</div>
+<p>然后运行 <code class="docutils literal notranslate"><span class="pre">tree</span> <span class="pre">-C</span> <span class="pre">.</span></code> 查看生成的sphinx结构:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── build
+├── make.bat
+├── Makefile
+└── source
+    ├── conf.py
+    ├── index.rst
+    ├── _static
+    └── _templates
+</pre></div>
+</div>
+<p>添加一篇文章，在source目录下新建hello.rst，内容如下:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hello</span><span class="p">,</span><span class="n">world</span>
+<span class="o">=============</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">index.rst</span></code> 修改如下:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">toctree</span><span class="p">::</span>
+   <span class="p">:</span><span class="n">maxdepth</span><span class="p">:</span> <span class="mi">2</span>
+   <span class="p">:</span><span class="n">caption</span><span class="p">:</span> <span class="n">Contents</span><span class="p">:</span>
+
+   <span class="n">hello</span>
+</pre></div>
+</div>
+<p>预览效果</p>
+<p>然后在更目录执行<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>，进入<code class="docutils literal notranslate"><span class="pre">build/html</span></code>目录后用浏览器打开<code class="docutils literal notranslate"><span class="pre">index.html</span></code></p>
+</div>
+<div class="section" id="id3">
+<h2>3. 配置Sphinx主题，插件<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<div class="section" id="id4">
+<h3>3.1 配置主题<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h3>
+<p>修改<code class="docutils literal notranslate"><span class="pre">./source/conf.py</span></code>配置文件，添加配置如下：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sphinx_rtd_theme</span>
+<span class="n">html_theme</span> <span class="o">=</span> <span class="s2">&quot;sphinx_rtd_theme&quot;</span>
+<span class="n">html_theme_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">sphinx_rtd_theme</span><span class="o">.</span><span class="n">get_html_theme_path</span><span class="p">()]</span>
+
+<span class="c1"># The master toctree document.</span>
+<span class="n">master_doc</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>3.2 拓展插件支持<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>插件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>recommonmark</td>
+<td>markdown</td>
+</tr>
+<tr>
+<td>sphinx-markdown-tables</td>
+<td>markdown 语法表格</td>
+</tr>
+<tr>
+<td>sphinxemoji</td>
+<td>颜文字支持</td>
+</tr>
+</tbody>
+</table><p>添加在根目录下添加环境依赖文件，即<code class="docutils literal notranslate"><span class="pre">./requirements.txt</span></code> pip要求文件（<strong>Readthedocs配置</strong>时需要用到）</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-autobuild<span class="o">==</span><span class="m">2020</span>.9.1
+sphinx-markdown-tables<span class="o">==</span><span class="m">0</span>.0.15
+sphinx-rtd-theme<span class="o">==</span><span class="m">0</span>.5.0
+sphinxcontrib-applehelp<span class="o">==</span><span class="m">1</span>.0.2
+sphinxcontrib-devhelp<span class="o">==</span><span class="m">1</span>.0.2
+sphinxcontrib-htmlhelp<span class="o">==</span><span class="m">1</span>.0.3
+sphinxcontrib-jsmath<span class="o">==</span><span class="m">1</span>.0.1
+sphinxcontrib-qthelp<span class="o">==</span><span class="m">1</span>.0.3
+sphinxcontrib-serializinghtml<span class="o">==</span><span class="m">1</span>.1.4
+</pre></div>
+</div>
+<p>预览效果同上，执行 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> 后，进入<code class="docutils literal notranslate"><span class="pre">build/html</span></code>目录后用浏览器打开<code class="docutils literal notranslate"><span class="pre">index.html</span></code></p>
+<p>修改<code class="docutils literal notranslate"><span class="pre">./source/conf.py</span></code>配置文件，添加配置如下：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">recommonmark.parser</span> <span class="kn">import</span> <span class="n">CommonMarkParser</span>
+
+<span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;recommonmark&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sphinx_markdown_tables&quot;</span><span class="p">,</span>
+    <span class="c1"># &#39;sphinxemoji.sphinxemoji&#39;,</span>
+<span class="p">]</span>
+
+<span class="c1"># Add any paths that contain custom static files (such as style sheets) here,</span>
+<span class="c1"># relative to this directory. They are copied after the builtin static files,</span>
+<span class="c1"># so a file named &quot;default.css&quot; will overwrite the builtin &quot;default.css&quot;.</span>
+<span class="n">html_static_path</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_static&quot;</span><span class="p">]</span>
+
+<span class="n">source_parsers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;.md&quot;</span><span class="p">:</span> <span class="n">CommonMarkParser</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">source_suffix</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.rst&quot;</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>4. 自动编译<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<p>每次改完，如果都生成新的 <code class="docutils literal notranslate"><span class="pre">html</span></code> 文件，都需要执行 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code>。那我们可以通过 git 的 <code class="docutils literal notranslate"><span class="pre">.git/hooks/pre-commit</span></code> 都执行，<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code>之前都会执行这个脚本。这样就达到了，每次改完代码，我们 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code> 之前，都先自动编译，然后再提交即可</p>
+<p>vim .git/hooks/pre-commit</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+
+make html
+git add -A
+</pre></div>
+</div>
+<p>然后赋值权限</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>chmod +x .git/hooks/pre-commit
+</pre></div>
+</div>
+<p>这样每次改完后，<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">-A</span></code>  -&gt; <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-am</span> <span class="pre">'xxx'</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span></code> 即可</p>
+</div>
+</div>
+<div class="section" id="readthedocs-org">
+<h1>二、托管 readthedocs.org<a class="headerlink" href="#readthedocs-org" title="永久链接至标题">¶</a></h1>
+<p><a class="reference external" href="https://readthedocs.org/">Read the Docs</a>是一个开源项目文档托管和阅读工具。它提供了Sphinx文档的多种阅读方式，它主要有以下特点：</p>
+<ul class="simple">
+<li><p>支持多种形式的阅读，<code class="docutils literal notranslate"><span class="pre">web/pdf/epub</span></code>等，同时可以全文搜索</p></li>
+<li><p>支持文档的版本控制，<code class="docutils literal notranslate"><span class="pre">git/svn</span></code>等</p></li>
+<li><p>支持对<code class="docutils literal notranslate"><span class="pre">github/gitlab</span></code>等仓库中某个标签或分支托管的Sphinx文档的clone、build</p></li>
+<li><p>支持<a class="reference external" href="https://www.cnblogs.com/wangwangever/p/7467142.html">webhooks</a>，当版本控制下的文档有更新时就会自动触发build文档</p></li>
+</ul>
+<p>这里大概讲下工作原理：</p>
+<ul class="simple">
+<li><p>进入<a class="reference external" href="https://readthedocs.org/">Read the Docs官网</a>点击登录，输入用户、邮箱、密码完成注册</p></li>
+<li><p>绑定 github 账号 - 导入 github 仓库作为项目 - 为项目创建名称、指定代码库地址</p></li>
+<li><p>通过 webhooks 实现当版本控制，当前版本库有更新时就会自动触发 build 文档，即我们 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span></code> 这样推上远程分支后，readthedocs 就会自动编译，时间大概是几分钟不等。</p></li>
+</ul>
+<p>具体配置参考文档 <a class="reference external" href="https://docgenerate.readthedocs.io/en/latest/sphinx/3-release/1-docs.html">ReadtheDocs</a> 即可</p>
+</div>
+<div class="section" id="id7">
+<h1>三、常见问题<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h1>
+<ol>
+<li><p>如果网站托管在 <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 上，会看到 build 时出现异常，<code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'sphinx_markdown_tables'</span> </code>。</p>
+<p>这是因为在编译时，没有这个环境，应该就是没有上传 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 文件</p>
+</li>
+</ol>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/sphinx_markdown_tables.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/sphinx_markdown_tables.png" /></p>
+<p>解决方式是添加环境依赖文件，在顶级目录下创建即可，vim requirements.txt`</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-markdown-tables<span class="o">==</span><span class="m">0</span>.0.15
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span></code> 推上去之后，就可以看到是正常构建完成了。里面有一条执行语句是 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--exists-action=w</span> <span class="pre">--no-cache-dir</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code> ，点开看这条语句，就发现它会安装好 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 里的环境变量了。</p>
+<p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" /></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="android.html" class="btn btn-neutral float-left" title="Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; 版权所有 2020, wu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

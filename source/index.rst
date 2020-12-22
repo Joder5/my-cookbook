@@ -12,6 +12,8 @@ Welcome to my-cookbook's documentation!
 
    dcmp
    android
+   sphinx
+
 
 
 
