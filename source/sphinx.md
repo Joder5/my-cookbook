@@ -1,4 +1,4 @@
-# 一、Sphinx + github + readthedocs 托管文档
+# Sphinx + github + readthedocs 托管文档
 
 ## 一、Sphinx配置 
 
@@ -79,7 +79,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 master_doc = 'index'
 ```
 
-### 3.2 拓展插件支持
+#### 3.2 拓展插件支持
 
 | 插件                   | 作用              |
 | ---------------------- | ----------------- |
