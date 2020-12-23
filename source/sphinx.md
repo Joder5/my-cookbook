@@ -157,7 +157,7 @@ chmod +x .git/hooks/pre-commit
 
 这里大概讲下工作原理：
 
-- 进入[Read the Docs官网](https://readthedocs.org/)点击登录，输入用户、邮箱、密码完成注册
+- 进入[Read the Docs官网](https://readthedocs.org/)点击登录，输入用户、邮箱、密码完成注册，或者直接用 github 账号授权登录
 - 绑定 github 账号 - 导入 github 仓库作为项目 - 为项目创建名称、指定代码库地址
 - 通过 webhooks 实现当版本控制，当前版本库有更新时就会自动触发 build 文档，即我们 `git push origin master` 这样推上远程分支后，readthedocs 就会自动编译，时间大概是几分钟不等。
 

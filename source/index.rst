@@ -10,8 +10,8 @@ Welcome to my-cookbook's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   dcmp
-   android
+   posts/dcmp
+   posts/android/pixel 刷机
    sphinx
 
 
