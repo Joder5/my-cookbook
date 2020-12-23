@@ -99,7 +99,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#readthedocs-org">二、托管 readthedocs.org</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">三、常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">三、常见问题</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">1. <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 编译找不到相应的库</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -331,11 +334,10 @@ git add -A
 </div>
 <div class="section" id="id7">
 <h2>三、常见问题<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
-<ol>
-<li><p>如果网站托管在 <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 上，会看到 build 时出现异常，<code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'sphinx_markdown_tables'</span> </code>。</p>
+<div class="section" id="id8">
+<h3>1. <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 编译找不到相应的库<a class="headerlink" href="#id8" title="永久链接至标题">¶</a></h3>
+<p>如果网站托管在 <code class="docutils literal notranslate"><span class="pre">readthedocs.org</span></code> 上，看到 build 时出现异常，例如 <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'sphinx_markdown_tables'</span> </code>。</p>
 <p>这是因为在编译时，没有这个环境，应该就是没有上传 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 文件</p>
-</li>
-</ol>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/sphinx_markdown_tables.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/sphinx_markdown_tables.png" /></p>
 <p>解决方式是添加环境依赖文件，在顶级目录下创建即可，vim requirements.txt`</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-markdown-tables<span class="o">==</span><span class="m">0</span>.0.15
@@ -343,6 +345,7 @@ git add -A
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span></code> 推上去之后，就可以看到是正常构建完成了。里面有一条执行语句是 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--exists-action=w</span> <span class="pre">--no-cache-dir</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code> ，点开看这条语句，就发现它会安装好 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> 里的环境变量了。</p>
 <p><img alt="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" src="https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/requirements.png" /></p>
+</div>
 </div>
 </div>
 

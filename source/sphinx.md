@@ -165,12 +165,12 @@ chmod +x .git/hooks/pre-commit
 
 ## 三、常见问题
 
-1. 如果网站托管在 `readthedocs.org` 上，会看到 build 时出现异常，`ModuleNotFoundError: No module named 'sphinx_markdown_tables' `。
+#### 1. `readthedocs.org` 编译找不到相应的库 
+如果网站托管在 `readthedocs.org` 上，看到 build 时出现异常，例如 `ModuleNotFoundError: No module named 'sphinx_markdown_tables' `。
 
    这是因为在编译时，没有这个环境，应该就是没有上传 `requirements.txt` 文件
 
 ![](https://img-1257127044.cos.ap-guangzhou.myqcloud.com/sphinx/sphinx_markdown_tables.png)
-
 
 
 解决方式是添加环境依赖文件，在顶级目录下创建即可，vim requirements.txt`
