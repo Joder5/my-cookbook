@@ -13,6 +13,7 @@ dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 `dcm
 #### 1. 创建 plugins 目录
 
 ```bash
+# $AIRFLOW_HOME 为当前 airflow 项目的家目录
 mkdir  $AIRFLOW_HOME/plugins
 ```
 
@@ -220,7 +221,9 @@ Tue Dec  8 17:02:06 CST 2020
 
 #### 1. 如何通过 BashOperator 执行 python 命令
 
-dag 执行的路径，不是在 dag 这个项目下，而是类似 `/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo`。但由于我们一般都是进入某个特定项目执行，所以如果用默认的 BashOperator，我们需要先进入某个路径
+dag 执行的路径，不是在 dag 这个项目下，而是类似 `/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo`。
+
+其实一开始我也是不知道的，后面通过 bash operator 执行 `pwd` 这个命令，就可以看到当前终端所在的路径
 
 ```bash
 dag = DAG(
@@ -232,10 +235,12 @@ dag = DAG(
 
 BashOperator(
     task_id="bash_task_demo",
-    bash_command='''echo hello''',
+    bash_command='''pwd''',
     dag=dag,
 )
 ```
+
+但由于我们一般都是进入某个特定项目执行，例如 `cd my-project && python run.py`，所以如果用默认的 BashOperator，我们需要先进入某个路径
 
 其实对于同一个项目来说，这一步 `cd xxx` 是重复的，因此我们可以自定义的 BashOperator。只需继承默认的 BashOperator，稍作改动
 

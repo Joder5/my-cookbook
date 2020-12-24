@@ -197,7 +197,8 @@
 <p>dcmp 插件的原理，就是在 web ui 创建完 dag 后，会根据模板 <code class="docutils literal notranslate"><span class="pre">dcmp/dag_templates/dag_code.template</span></code> 生成一段代码，然后写到本地上文件，这样就等同于我们手写的 dag 了。</p>
 <div class="section" id="plugins">
 <h3>1. 创建 plugins 目录<a class="headerlink" href="#plugins" title="永久链接至标题">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir  <span class="nv">$AIRFLOW_HOME</span>/plugins
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># $AIRFLOW_HOME 为当前 airflow 项目的家目录</span>
+mkdir  <span class="nv">$AIRFLOW_HOME</span>/plugins
 </pre></div>
 </div>
 </div>
@@ -370,7 +371,8 @@ Tue Dec  <span class="m">8</span> <span class="m">17</span>:02:06 CST <span clas
 <h2>四、DCMP 加入自定义的 Operator<a class="headerlink" href="#dcmp-operator" title="永久链接至标题">¶</a></h2>
 <div class="section" id="bashoperator-python">
 <h3>1. 如何通过 BashOperator 执行 python 命令<a class="headerlink" href="#bashoperator-python" title="永久链接至标题">¶</a></h3>
-<p>dag 执行的路径，不是在 dag 这个项目下，而是类似 <code class="docutils literal notranslate"><span class="pre">/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo</span></code>。但由于我们一般都是进入某个特定项目执行，所以如果用默认的 BashOperator，我们需要先进入某个路径</p>
+<p>dag 执行的路径，不是在 dag 这个项目下，而是类似 <code class="docutils literal notranslate"><span class="pre">/private/var/folders/27/q_0dcrhx24ngz06zp7q0fck80000gn/T/airflowtmpy03npuoo</span></code>。</p>
+<p>其实一开始我也是不知道的，后面通过 bash operator 执行 <code class="docutils literal notranslate"><span class="pre">pwd</span></code> 这个命令，就可以看到当前终端所在的路径</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">dag</span> <span class="o">=</span> DAG<span class="o">(</span>
     <span class="s2">&quot;bash_dag_demo&quot;</span>,
     <span class="nv">default_args</span><span class="o">=</span>default_args,
@@ -380,11 +382,12 @@ Tue Dec  <span class="m">8</span> <span class="m">17</span>:02:06 CST <span clas
 
 BashOperator<span class="o">(</span>
     <span class="nv">task_id</span><span class="o">=</span><span class="s2">&quot;bash_task_demo&quot;</span>,
-    <span class="nv">bash_command</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;echo hello&#39;&#39;&#39;</span>,
+    <span class="nv">bash_command</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;pwd&#39;&#39;&#39;</span>,
     <span class="nv">dag</span><span class="o">=</span>dag,
 <span class="o">)</span>
 </pre></div>
 </div>
+<p>但由于我们一般都是进入某个特定项目执行，例如 <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">my-project</span> <span class="pre">&amp;&amp;</span> <span class="pre">python</span> <span class="pre">run.py</span></code>，所以如果用默认的 BashOperator，我们需要先进入某个路径</p>
 <p>其实对于同一个项目来说，这一步 <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">xxx</span></code> 是重复的，因此我们可以自定义的 BashOperator。只需继承默认的 BashOperator，稍作改动</p>
 <p>scheduler/plugins/my_bash_operator</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
