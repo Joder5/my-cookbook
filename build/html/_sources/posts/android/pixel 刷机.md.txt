@@ -1,5 +1,3 @@
-# Pixel 解锁、刷机、刷 twrp、Magisk 和 EdXpose 等
-
 ### 一、 BL 解锁
 
 1. 打开设置-->关于手机，在版本号处连续点击7次，调出开发者选项。
@@ -58,7 +56,7 @@ fastboot devices -l
 若出来一串序列号，说明安卓设备已连接
 
  ```bash
-adb reboot bootloader
+adb reboot bootloader   
 
 # Linux/Mac（如果是 window，则执行 flash-all.bat 这个文件）
 sh flash-all.sh
@@ -120,9 +118,9 @@ fastboot reboot recovery
 ```bash
 # sideload 准备模式
 adb shell twrp sideload
-# 刷入 zip 包，如 twrp-pixel-installer-sailfish-3.3.0-0.zip
-adb sideload twrp-pixel-installer-sailfish-3.3.0-0.zip
-
+# 刷入 zip 包，如 twrp-pixel-installer-sailfish-3.3.0-0.zip 
+adb sideload twrp-pixel-installer-sailfish-3.3.0-0.zip 
+ 
 # 刷完之后重启
 adb reboot
 ```
@@ -222,11 +220,11 @@ adb reboot
 
 1. Magisk 安装 `Riru-Core`，可在线搜索 `Riru-Core` 或者 官方仓库找到 [riru-core ](https://github.com/Magisk-Modules-Repo/riru-core)安装
 2. Magisk 安装 `edXposed`，可在线搜索 `edXposed` （yahfa和sandhook版本二选一）或者 官方仓库找到 [edxpose](https://github.com/Magisk-Modules-Repo/riru_edxposed)安装，安装完后记得重启手机
-3. 下载EdXposed 的app：https://github.com/ElderDrivers/EdXposedManager/releases
+3. 下载EdXposed 的app：https://github.com/ElderDrivers/EdXposedManager/releases， 然后安装即可: `adb install EdXposedManager-4.5.7-45700-org.meowcat.edxposed.manager-release.apk`
 
 
 
-参考:
+参考: 
 
 [Pixel 3 XL 刷入EdXposed框架](https://blog.csdn.net/u010838555/article/details/105655660)
 [EdXposed安装教程-支持Pie的Xposed构架](https://www.jianshu.com/p/e4485cbaf3cd)
