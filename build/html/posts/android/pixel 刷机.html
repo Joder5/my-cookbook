@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>一、 BL 解锁 &mdash; my-cookbook 0.1 文档</title>
+  <title>pixel 刷机 &mdash; my-cookbook 0.1 文档</title>
   
 
   
@@ -86,16 +86,19 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../dcmp.html">DCMP - Airflow集成自动生成DAG插件</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">一、 BL 解锁</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#id1">二、刷入系统</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#twrp">三、刷入 twrp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#magisk">四、刷入 Magisk</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#a-rec-magisk-v21-1-zip">a. 用三方 REC 卡刷 Magisk-v21.1.zip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#b-magisk-manager-v8-0-3-apk">b. 通过  Magisk Manager v8.0.3.apk 安装</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pixel 刷机</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bl">一、 BL 解锁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">二、刷入系统</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#twrp">三、刷入 twrp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magisk">四、刷入 Magisk</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-rec-magisk-v21-1-zip">a. 用三方 REC 卡刷 Magisk-v21.1.zip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b-magisk-manager-v8-0-3-apk">b. 通过  Magisk Manager v8.0.3.apk 安装</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#id2">五、刷入 Magisk 模块</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#edxpose">六、刷入 EdXpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">五、刷入 Magisk 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edxpose">六、刷入 EdXpose</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx + github + readthedocs 托管文档</a></li>
 </ul>
 
@@ -143,7 +146,7 @@
     
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>一、 BL 解锁</li>
+      <li>pixel 刷机</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -162,8 +165,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bl">
-<h1>一、 BL 解锁<a class="headerlink" href="#bl" title="永久链接至标题">¶</a></h1>
+  <div class="section" id="pixel">
+<h1>pixel 刷机<a class="headerlink" href="#pixel" title="永久链接至标题">¶</a></h1>
+<div class="section" id="bl">
+<h2>一、 BL 解锁<a class="headerlink" href="#bl" title="永久链接至标题">¶</a></h2>
 <ol class="simple">
 <li><p>打开设置–&gt;关于手机，在版本号处连续点击7次，调出开发者选项。</p></li>
 <li><p>打开设置–&gt;系统–&gt;高级–&gt;开发者选项，打开USB调试开关和OEM解锁。</p></li>
@@ -190,7 +195,7 @@ fastboot oem unlock
 <p>注意：解锁只需要解一次，解锁之后千万不要随意锁上；锁上之前最好是把手机重刷一遍，保证不安装其他东西，然后再上锁。</p>
 </div>
 <div class="section" id="id1">
-<h1>二、刷入系统<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<h2>二、刷入系统<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
 <p>根据twrp工具的作者发的一篇文章：</p>
 <p>https://twrp.me/site/update/2019/10/23/twrp-and-android-10.html</p>
 <p>目前twrp工具还不支持Android 10.0系统，所以如果想在pixel 上root，需要先安装9.0版本的系统，下载地址：</p>
@@ -219,7 +224,7 @@ sh flash-all.sh
 <p>等待刷入后，手机重启，并会自动安装9.0系统。</p>
 </div>
 <div class="section" id="twrp">
-<h1>三、刷入 twrp<a class="headerlink" href="#twrp" title="永久链接至标题">¶</a></h1>
+<h2>三、刷入 twrp<a class="headerlink" href="#twrp" title="永久链接至标题">¶</a></h2>
 <p>Recovery 是安卓的恢复系统，类似 Windows 的 PE 和 macOS 的恢复功能，可以用来系统升级和重置手机</p>
 <p>刷入第三方的 Recovery 可以获得更多的功能，比如 Root 和 刷入第三方 ROM</p>
 <p>到官方下载对应的 twrp，https://twrp.me/Devices/</p>
@@ -272,12 +277,12 @@ fastboot boot twrp-3.3.1-0-hennessy.img
 </div>
 </div>
 <div class="section" id="magisk">
-<h1>四、刷入 Magisk<a class="headerlink" href="#magisk" title="永久链接至标题">¶</a></h1>
+<h2>四、刷入 Magisk<a class="headerlink" href="#magisk" title="永久链接至标题">¶</a></h2>
 <p>推荐阅读：<a class="reference external" href="https://sspai.com/post/53043">Magisk 是如何工作的？</a></p>
 <p>Magisk 是一个兼具稳定性和可玩性的神器：作为一个 Root 方案，它能不破坏系统实现无痛 OTA，作为一个插件扩展平台，它又能提供丰富的自定义模块来满足多样化的定制需求</p>
 <p>安装 <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases">Magisk</a>， 版本不低于 20.4。安装方式有两种</p>
 <div class="section" id="a-rec-magisk-v21-1-zip">
-<h2>a. 用三方 REC 卡刷 <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/v21.1">Magisk-v21.1.zip</a><a class="headerlink" href="#a-rec-magisk-v21-1-zip" title="永久链接至标题">¶</a></h2>
+<h3>a. 用三方 REC 卡刷 <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/v21.1">Magisk-v21.1.zip</a><a class="headerlink" href="#a-rec-magisk-v21-1-zip" title="永久链接至标题">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 进入 recovery 模式</span>
 adb reboot recovery
 
@@ -298,13 +303,13 @@ adb reboot
 <p>当然也可以手动刷，可参考步骤三中刷入 <code class="docutils literal notranslate"><span class="pre">twrp-pixel-installer-sailfish-3.3.0-0.zip</span></code></p>
 </div>
 <div class="section" id="b-magisk-manager-v8-0-3-apk">
-<h2>b. 通过  <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.3">Magisk Manager v8.0.3.apk</a> 安装<a class="headerlink" href="#b-magisk-manager-v8-0-3-apk" title="永久链接至标题">¶</a></h2>
+<h3>b. 通过  <a class="reference external" href="https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.3">Magisk Manager v8.0.3.apk</a> 安装<a class="headerlink" href="#b-magisk-manager-v8-0-3-apk" title="永久链接至标题">¶</a></h3>
 <p>安装完 Magisk Manager apk后， 选择安装（需要手机可以 fanqiang），安装后重启手机</p>
 <p>卸载 Magisk 最为彻底的方式就是在 Magisk Manager 中点击「卸载」、「完全卸载」，应用会自动下载刷完 uninstall.zip 卸载包、自动卸载它自己、自动重启。如果你无法进入系统，在 TWRP 中手动刷入 uninstall.zip 卸载包即可。</p>
 </div>
 </div>
 <div class="section" id="id2">
-<h1>五、刷入 Magisk 模块<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h1>
+<h2>五、刷入 Magisk 模块<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
 <p>在安装完 magisk 之后，我们的手机就已经是 root 状态了。此时我们还可以安装 magisk 的一些模块来实现某些功能。例如Android 7以上的 Android 系统，App默认不信任用户证书,只信任系统证书。例如<code class="docutils literal notranslate"><span class="pre">Move_Certificates.zip</span> </code>的作用就是帮我们把证书从用户目录移动系统目录。安装 <code class="docutils literal notranslate"><span class="pre">Magisk</span> <span class="pre">模块</span></code> 的方式也有几种</p>
 <p><strong>1. 通过 magisk 在线安装</strong></p>
 <p>这种最为简单，但是需要手机可以 fanqiang。</p>
@@ -329,7 +334,7 @@ adb reboot
 </div>
 </div>
 <div class="section" id="edxpose">
-<h1>六、刷入 EdXpose<a class="headerlink" href="#edxpose" title="永久链接至标题">¶</a></h1>
+<h2>六、刷入 EdXpose<a class="headerlink" href="#edxpose" title="永久链接至标题">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/Magisk-Modules-Repo?q=&amp;type=&amp;language=">Magisk 官方仓库</a> 下载 zip 包，然后adb push 推到手机里，再通过 magisk 安装，参考<code class="docutils literal notranslate"><span class="pre">步骤五</span> <span class="pre">-</span> <span class="pre">刷入</span> <span class="pre">Magisk</span> <span class="pre">模块</span></code></p></li>
 <li><p>Magisk 在线安装（需要手机可以fanqiang)</p></li>
@@ -343,6 +348,7 @@ adb reboot
 <p>参考:</p>
 <p><a class="reference external" href="https://blog.csdn.net/u010838555/article/details/105655660">Pixel 3 XL 刷入EdXposed框架</a>
 <a class="reference external" href="https://www.jianshu.com/p/e4485cbaf3cd">EdXposed安装教程-支持Pie的Xposed构架</a></p>
+</div>
 </div>
 
 
